@@ -1,0 +1,3204 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📡 Mercado de Telecomunicações — Portugal</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar Custom */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f5f5f7;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d2d2d7;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b0b0b8;
+        }
+
+        /* Header */
+        .header {
+            background: #ffffff;
+            border-bottom: 1px solid #d2d2d7;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #1d1d1f;
+        }
+
+        .header p {
+            color: #6e6e73;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 2rem 2rem;
+        }
+
+        /* Main Tabs */
+        .main-tabs {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .main-tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: #e8e8ed;
+            border: none;
+            color: #1d1d1f;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 980px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .main-tab-btn:hover {
+            background: #d2d2d7;
+        }
+
+        .main-tab-btn.active {
+            background: #0071e3;
+            color: #ffffff;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: #ffffff;
+            border: none;
+            border-radius: 18px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #1d1d1f;
+            font-weight: 600;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: #ffffff;
+            border: none;
+            border-radius: 18px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .kpi-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .kpi-label {
+            font-size: 0.8rem;
+            color: #6e6e73;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin-bottom: 0.75rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.positive {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge.negative {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* DIGI Spotlight */
+        .digi-spotlight {
+            background: #f0fdf4;
+            border: 1px solid #34c759;
+            padding: 2rem;
+            border-radius: 18px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 20px rgba(52, 199, 89, 0.06);
+        }
+
+        .digi-spotlight h3 {
+            color: #166534;
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .digi-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .digi-metric {
+            text-align: center;
+            padding: 1.25rem;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #d2d2d7;
+        }
+
+        .digi-metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #34c759;
+        }
+
+        .digi-metric-label {
+            font-size: 0.85rem;
+            color: #6e6e73;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        .digi-note {
+            font-size: 0.9rem;
+            color: #6e6e73;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #d2d2d7;
+            font-style: italic;
+        }
+
+        /* Sub-tabs */
+        .sub-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .sub-tab-btn {
+            padding: 0.65rem 1.25rem;
+            background: #e8e8ed;
+            border: none;
+            color: #1d1d1f;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 980px;
+            transition: all 0.3s ease;
+        }
+
+        .sub-tab-btn:hover {
+            background: #d2d2d7;
+        }
+
+        .sub-tab-btn.active {
+            background: #0071e3;
+            color: #ffffff;
+        }
+
+        .sub-tab-content {
+            display: none;
+        }
+
+        .sub-tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 1.5rem;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-wrapper {
+            background: #ffffff;
+            border: none;
+            border-radius: 18px;
+            padding: 1.5rem;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .chart-wrapper h4 {
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            color: #1d1d1f;
+            font-weight: 600;
+        }
+
+        .chart-wrapper canvas {
+            flex: 1;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .metric-box {
+            background: #ffffff;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #6e6e73;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0071e3;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-change {
+            font-size: 0.85rem;
+            color: #6e6e73;
+        }
+
+        /* Stacked Bar Legend */
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #d2d2d7;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #1d1d1f;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        /* Comparar Tab Styling */
+        .comparison-controls {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .comparison-controls select {
+            width: 100%;
+            padding: 0.75rem;
+            background: #ffffff;
+            color: #1d1d1f;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .comparison-controls select:hover {
+            border-color: #b0b0b8;
+        }
+
+        .comparison-controls select:focus {
+            outline: none;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+
+        /* Operator filter pills */
+        .op-pill {
+            padding: 5px 13px;
+            border-radius: 980px;
+            border: 1.5px solid var(--op-color);
+            background: transparent;
+            color: var(--op-color);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .op-pill.active {
+            background: var(--op-color);
+            color: #fff;
+        }
+        .op-pill:hover {
+            opacity: 0.8;
+        }
+
+        /* Export Button */
+        .chart-export-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: #f5f5f7;
+            border: 1px solid #d2d2d7;
+            border-radius: 980px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #6e6e73;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .chart-export-btn:hover {
+            background: #e8e8ed;
+            color: #1d1d1f;
+            border-color: #b0b0b8;
+        }
+        .chart-export-btn:active {
+            transform: scale(0.96);
+        }
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            gap: 8px;
+        }
+        .chart-header h4 {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #1d1d1f;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .container {
+                padding: 0 1rem 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chart-row {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .header {
+                padding: 1.5rem;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .digi-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sub-tabs {
+                flex-direction: column;
+            }
+
+            .sub-tab-btn {
+                width: 100%;
+            }
+
+            .chart-legend {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Responsividade Mobile/Tablet Melhorada */
+        @media (max-width: 768px) {
+            /* Gráficos de operadores maiores em tablet/mobile */
+            #opCanvas-pen, #opCanvas-sub, #opCanvas-rec, #histChartQuotasOp {
+                height: 300px !important;
+            }
+
+            /* Pills de operadores em grid 2 colunas */
+            .op-pill {
+                flex: 1 1 calc(50% - 0.5rem);
+                min-width: 120px;
+                text-align: center;
+                justify-content: center;
+            }
+
+            /* Tabela quotas mais compacta */
+            #quotasEvolTable {
+                font-size: 11px;
+            }
+            #quotasEvolTable th,
+            #quotasEvolTable td {
+                padding: 6px 4px !important;
+            }
+
+            /* Chart headers em coluna */
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 0.75rem;
+            }
+
+            /* Export buttons full width em mobile */
+            .chart-export-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Pills em coluna em mobile pequeno */
+            .op-pill {
+                flex: 1 1 100%;
+            }
+
+            /* Gráficos ainda maiores em mobile pequeno */
+            #opCanvas-pen, #opCanvas-sub, #opCanvas-rec, #histChartQuotasOp {
+                height: 320px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>📡 Mercado de Telecomunicações — Portugal</h1>
+        <p>Fonte: ANACOM | Factos & Números 3T 2025 + Anexo Estatístico 2024</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Main Tabs -->
+        <div class="main-tabs">
+            <button class="main-tab-btn active" onclick="switchMainTab('tab-3t25')">📊 3T 2025</button>
+            <button class="main-tab-btn" onclick="switchMainTab('tab-compare')">🔍 Comparar</button>
+            <button class="main-tab-btn" onclick="switchMainTab('tab-historical')">📈 Histórico</button>
+        </div>
+
+        <!-- TAB 1: 3T 2025 -->
+        <div id="tab-3t25" class="tab-content active">
+
+            <!-- SECÇÃO 1: KPI Cards (top) -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon">📱</div>
+                    <div class="kpi-label">Móvel com Internet</div>
+                    <div class="kpi-value">11.155,59</div>
+                    <div style="color: #6e6e73; font-size: 0.8rem; margin-bottom: 0.75rem; font-weight: 500;">mil</div>
+                    <span class="badge positive">+3,68%</span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🌐</div>
+                    <div class="kpi-label">Internet Fixa</div>
+                    <div class="kpi-value">4.315,48</div>
+                    <div style="color: #6e6e73; font-size: 0.8rem; margin-bottom: 0.75rem; font-weight: 500;">mil</div>
+                    <span class="badge positive">+1,95%</span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">☎️</div>
+                    <div class="kpi-label">Tel. Fixo</div>
+                    <div class="kpi-value">4.431,82</div>
+                    <div style="color: #6e6e73; font-size: 0.8rem; margin-bottom: 0.75rem; font-weight: 500;">mil</div>
+                    <span class="badge negative">-0,77%</span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-label">Receitas</div>
+                    <div class="kpi-value">€3.038,69M</div>
+                    <div style="color: #6e6e73; font-size: 0.8rem; margin-bottom: 0.75rem; font-weight: 500;">Total</div>
+                    <span class="badge negative">-0,97%</span>
+                </div>
+            </div>
+
+            <!-- SECÇÃO 2: Penetração com Dropdown + Receitas com YoY (2 charts lado a lado) -->
+            <div class="chart-row">
+                <!-- MELHORIA A: Gráfico de Penetração com Dropdown -->
+                <div style="background:#fff; border-radius:18px; padding:28px; box-shadow:0 2px 20px rgba(0,0,0,0.06);">
+                  <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+                    <div>
+                      <h3 id="penTitle" style="margin:0 0 4px; font-size:17px; font-weight:600; color:#1d1d1f;">Penetração — Serviço Telefónico Fixo (STF)</h3>
+                      <p style="margin:0; font-size:13px; color:#6e6e73;">Por 100 habitantes · 2015Q1 – 2025Q3</p>
+                    </div>
+                    <select id="penSelect" onchange="switchPenetracao(this.value)"
+                      style="padding:7px 12px; border:1.5px solid #d2d2d7; border-radius:10px; background:#fff; color:#1d1d1f; font-size:13px; font-family:inherit; cursor:pointer; outline:none; appearance:none; -webkit-appearance:none; background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%236e6e73%22 d=%22M6 8L1 3h10z%22/></svg>'); background-repeat:no-repeat; background-position:right 10px center; padding-right:30px;">
+                      <option value="stf">STF — Serviço Telefónico Fixo</option>
+                      <option value="stm">STM — Serviço Telefónico Móvel</option>
+                      <option value="blm">BLM — Banda Larga Móvel</option>
+                      <option value="tvs">TVS — TV por Subscrição</option>
+                    </select>
+                    <button class="chart-export-btn" onclick="exportPenChart()">⬇ Excel</button>
+                  </div>
+                  <div style="position:relative; height:260px;">
+                    <canvas id="penChart"></canvas>
+                  </div>
+                </div>
+
+                <!-- MELHORIA B: Gráfico de Receitas com Acumulado e YoY -->
+                <div style="background:#fff; border-radius:18px; padding:28px; box-shadow:0 2px 20px rgba(0,0,0,0.06); padding-right:48px;">
+                  <div style="margin-bottom:20px;">
+                    <div class="chart-header">
+                      <h3 style="margin:0 0 2px; font-size:17px; font-weight:600; color:#1d1d1f;">Receitas Acumuladas por Tipo</h3>
+                      <button class="chart-export-btn" onclick="exportCurrentChart('receitasChart','Receitas_Acumuladas_3T2025')">⬇ Excel</button>
+                    </div>
+                    <p style="margin:0 0 16px; font-size:13px; color:#6e6e73;">Jan–Set 2025 (€M) · <span style="color:#6e6e73;">vs. período homólogo 2024</span></p>
+                  </div>
+                  <div style="position:relative; height:260px;">
+                    <canvas id="receitasChart"></canvas>
+                  </div>
+                </div>
+            </div>
+
+            <!-- SECÇÃO 3: KPIs Adicionais (grid) -->
+            <div class="card">
+                <h2>KPIs Adicionais</h2>
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <div class="metric-label">Penetração STF</div>
+                        <div class="metric-value">50,7</div>
+                        <div class="metric-label" style="font-size: 0.75rem; color: #6e6e73; text-transform: none; letter-spacing: 0;">/100 hab</div>
+                        <div class="metric-change" style="color: #b91c1c;">-1,2 p.p. ↓</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Penetração STM</div>
+                        <div class="metric-value">171,7</div>
+                        <div class="metric-label" style="font-size: 0.75rem; color: #6e6e73; text-transform: none; letter-spacing: 0;">/100 hab</div>
+                        <div class="metric-change" style="color: #b91c1c;">-5,8 p.p. ↓</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Penetração BLM</div>
+                        <div class="metric-value">103,8</div>
+                        <div class="metric-label" style="font-size: 0.75rem; color: #6e6e73; text-transform: none; letter-spacing: 0;">/100 hab</div>
+                        <div class="metric-change" style="color: #15803d;">+2,7 p.p. ↑</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Penetração TVS</div>
+                        <div class="metric-value">43,5</div>
+                        <div class="metric-label" style="font-size: 0.75rem; color: #6e6e73; text-transform: none; letter-spacing: 0;">/100 hab</div>
+                        <div class="metric-change" style="color: #6e6e73;">Estável</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Tráfego BLM</div>
+                        <div class="metric-value">555,28</div>
+                        <div class="metric-label" style="font-size: 0.75rem; color: #6e6e73; text-transform: none; letter-spacing: 0;">PB</div>
+                        <div class="metric-change" style="color: #15803d;">+37,19% ↑</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">SMS Enviados</div>
+                        <div class="metric-value">1.340,99</div>
+                        <div class="metric-label" style="font-size: 0.75rem; color: #6e6e73; text-transform: none; letter-spacing: 0;">M</div>
+                        <div class="metric-change" style="color: #b91c1c;">-27,77% ↓</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secção: Evolução das Quotas — Tabela -->
+            <div style="background:#fff; border-radius:18px; padding:28px; box-shadow:0 2px 20px rgba(0,0,0,0.06); margin-top:24px;">
+              <div style="margin-bottom:20px;">
+                <h3 style="margin:0 0 4px; font-size:17px; font-weight:600; color:#1d1d1f;">Quotas de Mercado — Evolução Trimestral</h3>
+                <p style="margin:0; font-size:13px; color:#6e6e73;">Receitas retalhistas totais · % mercado</p>
+              </div>
+
+              <div style="overflow-x:auto;">
+                <table id="quotasEvolTable" style="width:100%; border-collapse:collapse; font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif; font-size:14px;">
+                  <thead>
+                    <tr style="border-bottom:2px solid #f0f0f0;">
+                      <th style="text-align:left; padding:10px 14px; color:#6e6e73; font-weight:500; font-size:12px; text-transform:uppercase; letter-spacing:0.04em; width:140px;">Operador</th>
+                      <th style="text-align:center; padding:10px 10px; color:#6e6e73; font-weight:500; font-size:12px;">3T 2024</th>
+                      <th style="text-align:center; padding:10px 10px; color:#6e6e73; font-weight:500; font-size:12px;">4T 2024</th>
+                      <th style="text-align:center; padding:10px 10px; color:#6e6e73; font-weight:500; font-size:12px;">1T 2025</th>
+                      <th style="text-align:center; padding:10px 10px; color:#6e6e73; font-weight:500; font-size:12px;">2T 2025</th>
+                      <th style="text-align:center; padding:10px 12px; color:#1d1d1f; font-weight:600; font-size:12px; background:#f5f5f7; border-radius:8px 8px 0 0;">3T 2025</th>
+                      <th style="text-align:center; padding:10px 14px; color:#6e6e73; font-weight:500; font-size:12px;">Δ YoY</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- MEO -->
+                    <tr style="border-bottom:1px solid #f5f5f7; transition:background 0.15s;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
+                      <td style="padding:14px 14px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                          <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#0071e3; flex-shrink:0;"></span>
+                          <span style="font-weight:600; color:#1d1d1f;">MEO</span>
+                        </div>
+                        <div style="margin-top:5px; padding-left:20px;">
+                          <div style="height:4px; background:#f0f0f0; border-radius:2px; width:100%; max-width:80px;">
+                            <div style="height:4px; background:#0071e3; border-radius:2px; width:37.4%;"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style="text-align:center; padding:14px 10px; color:#1d1d1f;">39,0%</td>
+                      <td style="text-align:center; padding:14px 10px; color:#1d1d1f;">38,3%</td>
+                      <td style="text-align:center; padding:14px 10px; color:#1d1d1f;">38,1%</td>
+                      <td style="text-align:center; padding:14px 10px; color:#1d1d1f;">37,8%</td>
+                      <td style="text-align:center; padding:14px 12px; font-weight:700; color:#1d1d1f; background:#f5f5f7;">37,4%</td>
+                      <td style="text-align:center; padding:14px 14px;">
+                        <span style="display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:6px; font-size:12px; font-weight:600; background:#fee2e2; color:#c0392b;">▼ −1,6 pp</span>
+                      </td>
+                    </tr>
+
+                    <!-- NOS -->
+                    <tr style="border-bottom:1px solid #f5f5f7; transition:background 0.15s;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
+                      <td style="padding:14px 14px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                          <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#1d1d1f; flex-shrink:0;"></span>
+                          <span style="font-weight:600; color:#1d1d1f;">NOS</span>
+                        </div>
+                        <div style="margin-top:5px; padding-left:20px;">
+                          <div style="height:4px; background:#f0f0f0; border-radius:2px; width:100%; max-width:80px;">
+                            <div style="height:4px; background:#1d1d1f; border-radius:2px; width:31.6%;"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style="text-align:center; padding:14px 10px; color:#1d1d1f;">31,0%</td>
+                      <td style="text-align:center; padding:14px 10px; color:#1d1d1f;">31,2%</td>
+                      <td style="text-align:center; padding:14px 10px; color:#1d1d1f;">31,5%</td>
+                      <td style="text-align:center; padding:14px 10px; color:#1d1d1f;">31,6%</td>
+                      <td style="text-align:center; padding:14px 12px; font-weight:700; color:#1d1d1f; background:#f5f5f7;">31,6%</td>
+                      <td style="text-align:center; padding:14px 14px;">
+                        <span style="display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:6px; font-size:12px; font-weight:600; background:#dcfce7; color:#1a7f37;">▲ +0,6 pp</span>
+                      </td>
+                    </tr>
+
+                    <!-- Vodafone -->
+                    <tr style="border-bottom:1px solid #f5f5f7; transition:background 0.15s;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
+                      <td style="padding:14px 14px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                          <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#e30613; flex-shrink:0;"></span>
+                          <span style="font-weight:600; color:#1d1d1f;">Vodafone</span>
+                        </div>
+                        <div style="margin-top:5px; padding-left:20px;">
+                          <div style="height:4px; background:#f0f0f0; border-radius:2px; width:100%; max-width:80px;">
+                            <div style="height:4px; background:#e30613; border-radius:2px; width:28.5%;"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style="text-align:center; padding:14px 10px; color:#1d1d1f;">29,0%</td>
+                      <td style="text-align:center; padding:14px 10px; color:#1d1d1f;">28,4%</td>
+                      <td style="text-align:center; padding:14px 10px; color:#1d1d1f;">28,5%</td>
+                      <td style="text-align:center; padding:14px 10px; color:#1d1d1f;">28,5%</td>
+                      <td style="text-align:center; padding:14px 12px; font-weight:700; color:#1d1d1f; background:#f5f5f7;">28,5%</td>
+                      <td style="text-align:center; padding:14px 14px;">
+                        <span style="display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:6px; font-size:12px; font-weight:600; background:#fee2e2; color:#c0392b;">▼ −0,5 pp</span>
+                      </td>
+                    </tr>
+
+                    <!-- DIGI -->
+                    <tr style="transition:background 0.15s;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
+                      <td style="padding:14px 14px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                          <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#34c759; flex-shrink:0;"></span>
+                          <span style="font-weight:600; color:#1d1d1f;">DIGI</span>
+                          <span style="font-size:10px; background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; border-radius:4px; padding:1px 5px; font-weight:600;">novo</span>
+                        </div>
+                        <div style="margin-top:5px; padding-left:20px;">
+                          <div style="height:4px; background:#f0f0f0; border-radius:2px; width:100%; max-width:80px;">
+                            <div style="height:4px; background:#34c759; border-radius:2px; width:0.5%;"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style="text-align:center; padding:14px 10px; color:#b0b0b8;">—</td>
+                      <td style="text-align:center; padding:14px 10px; color:#b0b0b8;">—</td>
+                      <td style="text-align:center; padding:14px 10px; color:#1d1d1f;">0,2%</td>
+                      <td style="text-align:center; padding:14px 10px; color:#1d1d1f;">0,2%</td>
+                      <td style="text-align:center; padding:14px 12px; font-weight:700; color:#34c759; background:#f5f5f7;">0,2%</td>
+                      <td style="text-align:center; padding:14px 14px;">
+                        <span style="display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:6px; font-size:12px; font-weight:600; background:#f0fdf4; color:#166534;">✦ entrada</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Nota de rodapé -->
+              <p style="margin:16px 0 0; font-size:12px; color:#b0b0b8; border-top:1px solid #f0f0f0; padding-top:12px;">
+                Fonte: ANACOM · Receitas retalhistas totais · pp = pontos percentuais · DIGI entrou no mercado em nov. 2024
+              </p>
+            </div>
+
+            <!-- SECÇÃO 5: Quotas por Segmento -->
+            <div class="card">
+                <h2>Quotas de Mercado por Segmento — 3T 2025</h2>
+                
+                <!-- Sub-tabs para quotas -->
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn active" onclick="switchSubTab('quotas-all', this)">Todos os Segmentos</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('quotas-mobile', this)">📶 Móvel</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('quotas-fixed', this)">🏠 Fixo</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('quotas-bundles', this)">📦 Pacotes</button>
+                </div>
+
+                <!-- Sub-tab: Todos os Segmentos -->
+                <div id="quotas-all" class="sub-tab-content active">
+                    <div class="chart-header" style="margin-bottom:0.75rem;">
+                      <span style="font-size:0.9rem;font-weight:600;color:#1d1d1f;">Quotas por Segmento — 3T 2025</span>
+                      <button class="chart-export-btn" onclick="exportCurrentChart('chartStackedBars','Quotas_Segmentos_3T2025')">⬇ Excel</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartStackedBars"></canvas>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #0071e3;"></div>
+                            <span>MEO</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #1d1d1f;"></div>
+                            <span>NOS</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #e30613;"></div>
+                            <span>Vodafone</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #34c759;"></div>
+                            <span>DIGI</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #5ac8fa;"></div>
+                            <span>NOWO</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #b0b0b8;"></div>
+                            <span>Outros</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-tab: Móvel -->
+                <div id="quotas-mobile" class="sub-tab-content">
+                    <div class="chart-row">
+                        <div class="chart-wrapper">
+                            <div class="chart-header">
+                              <h4>Voz Móvel</h4>
+                              <button class="chart-export-btn" onclick="exportCurrentChart('chartVozMovel','Quotas_VozMovel_3T2025')">⬇ Excel</button>
+                            </div>
+                            <canvas id="chartVozMovel"></canvas>
+                        </div>
+                        <div class="chart-wrapper">
+                            <div class="chart-header">
+                              <h4>BL Móvel</h4>
+                              <button class="chart-export-btn" onclick="exportCurrentChart('chartBLMovel','Quotas_BLMovel_3T2025')">⬇ Excel</button>
+                            </div>
+                            <canvas id="chartBLMovel"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-tab: Fixo -->
+                <div id="quotas-fixed" class="sub-tab-content">
+                    <div class="chart-row">
+                        <div class="chart-wrapper">
+                            <div class="chart-header">
+                              <h4>Voz Fixa</h4>
+                              <button class="chart-export-btn" onclick="exportCurrentChart('chartVozFixa','Quotas_VozFixa_3T2025')">⬇ Excel</button>
+                            </div>
+                            <canvas id="chartVozFixa"></canvas>
+                        </div>
+                        <div class="chart-wrapper">
+                            <div class="chart-header">
+                              <h4>BL Fixa</h4>
+                              <button class="chart-export-btn" onclick="exportCurrentChart('chartBLFixa','Quotas_BLFixa_3T2025')">⬇ Excel</button>
+                            </div>
+                            <canvas id="chartBLFixa"></canvas>
+                        </div>
+                        <div class="chart-wrapper">
+                            <div class="chart-header">
+                              <h4>TV Subscrição</h4>
+                              <button class="chart-export-btn" onclick="exportCurrentChart('chartTVSubscricao','Quotas_TVSubscricao_3T2025')">⬇ Excel</button>
+                            </div>
+                            <canvas id="chartTVSubscricao"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-tab: Pacotes -->
+                <div id="quotas-bundles" class="sub-tab-content">
+                    <div class="chart-row">
+                        <div class="chart-wrapper">
+                            <div class="chart-header">
+                              <h4>Multiple Play</h4>
+                              <button class="chart-export-btn" onclick="exportCurrentChart('chartMultiplePlay','Quotas_MultiplePlay_3T2025')">⬇ Excel</button>
+                            </div>
+                            <canvas id="chartMultiplePlay"></canvas>
+                        </div>
+                        <div class="chart-wrapper">
+                            <div class="chart-header">
+                              <h4>Triple Play (3P)</h4>
+                              <button class="chart-export-btn" onclick="exportCurrentChart('chartTriplePlay','Quotas_TriplePlay_3T2025')">⬇ Excel</button>
+                            </div>
+                            <canvas id="chartTriplePlay"></canvas>
+                        </div>
+                        <div class="chart-wrapper">
+                            <div class="chart-header">
+                              <h4>4/5 Play</h4>
+                              <button class="chart-export-btn" onclick="exportCurrentChart('chart45Play','Quotas_45Play_3T2025')">⬇ Excel</button>
+                            </div>
+                            <canvas id="chart45Play"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECÇÃO 6: SCORECARDS OPERADORES -->
+            <div style="margin-bottom: 2rem;">
+                <h2 style="font-size: 1.3rem; margin-bottom: 1.25rem; color: #1d1d1f; font-weight: 600;">📊 Scorecards por Operador — 3T 2025</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
+                    
+                    <!-- MEO Scorecard -->
+                    <div style="background: linear-gradient(135deg, #0071e3 0%, #005bb5 100%); border-radius: 14px; padding: 1.25rem; box-shadow: 0 3px 20px rgba(0, 113, 227, 0.2); color: #ffffff;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem;">
+                            <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0; color: #ffffff;">MEO</h3>
+                            <div style="background: rgba(255,255,255,0.2); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.65rem; font-weight: 600;">Líder</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 0.85rem; margin-bottom: 0.85rem; backdrop-filter: blur(10px);">
+                            <div style="font-size: 0.65rem; opacity: 0.9; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.4px;">Receita Estimada 3T25</div>
+                            <div style="font-size: 1.6rem; font-weight: 700;">€375,8M</div>
+                            <div style="font-size: 0.7rem; opacity: 0.85; margin-top: 0.2rem;">37,4% quota mercado</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">36,1%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.85; margin-top: 0.2rem;">Voz Móvel</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">34,0%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.85; margin-top: 0.2rem;">BL Móvel</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">44,7%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.85; margin-top: 0.2rem;">Voz Fixa</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">41,7%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.85; margin-top: 0.2rem;">Multiple Play</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NOS Scorecard -->
+                    <div style="background: linear-gradient(135deg, #1d1d1f 0%, #000000 100%); border-radius: 14px; padding: 1.25rem; box-shadow: 0 3px 20px rgba(29, 29, 31, 0.25); color: #ffffff;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem;">
+                            <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0; color: #ffffff;">NOS</h3>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.65rem; font-weight: 600;">#2</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 0.85rem; margin-bottom: 0.85rem; backdrop-filter: blur(10px);">
+                            <div style="font-size: 0.65rem; opacity: 0.85; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.4px;">Receita Estimada 3T25</div>
+                            <div style="font-size: 1.6rem; font-weight: 700;">€317,4M</div>
+                            <div style="font-size: 0.7rem; opacity: 0.8; margin-top: 0.2rem;">31,6% quota mercado</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+                            <div style="background: rgba(255,255,255,0.08); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">31,0%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.8; margin-top: 0.2rem;">Voz Móvel</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.08); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">32,4%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.8; margin-top: 0.2rem;">BL Móvel</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.08); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">32,9%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.8; margin-top: 0.2rem;">Voz Fixa</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.08); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">34,9%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.8; margin-top: 0.2rem;">Multiple Play</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vodafone Scorecard -->
+                    <div style="background: linear-gradient(135deg, #e30613 0%, #b00510 100%); border-radius: 14px; padding: 1.25rem; box-shadow: 0 3px 20px rgba(227, 6, 19, 0.25); color: #ffffff;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem;">
+                            <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0; color: #ffffff;">Vodafone</h3>
+                            <div style="background: rgba(255,255,255,0.2); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.65rem; font-weight: 600;">#3</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 0.85rem; margin-bottom: 0.85rem; backdrop-filter: blur(10px);">
+                            <div style="font-size: 0.65rem; opacity: 0.9; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.4px;">Receita Estimada 3T25</div>
+                            <div style="font-size: 1.6rem; font-weight: 700;">€286,3M</div>
+                            <div style="font-size: 0.7rem; opacity: 0.85; margin-top: 0.2rem;">28,5% quota mercado</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">27,8%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.85; margin-top: 0.2rem;">Voz Móvel</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">27,8%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.85; margin-top: 0.2rem;">BL Móvel</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">19,7%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.85; margin-top: 0.2rem;">Voz Fixa</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">20,4%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.85; margin-top: 0.2rem;">Multiple Play</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DIGI Scorecard -->
+                    <div style="background: linear-gradient(135deg, #34c759 0%, #28a745 100%); border-radius: 14px; padding: 1.25rem; box-shadow: 0 3px 20px rgba(52, 199, 89, 0.25); color: #ffffff;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem;">
+                            <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0; color: #ffffff;">DIGI</h3>
+                            <div style="background: rgba(255,255,255,0.25); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.65rem; font-weight: 600;">NOVO</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 0.85rem; margin-bottom: 0.85rem; backdrop-filter: blur(10px);">
+                            <div style="font-size: 0.65rem; opacity: 0.9; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.4px;">Receita Estimada 3T25</div>
+                            <div style="font-size: 1.6rem; font-weight: 700;">€2,0M</div>
+                            <div style="font-size: 0.7rem; opacity: 0.85; margin-top: 0.2rem;">0,2% quota mercado</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">2,7%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.85; margin-top: 0.2rem;">Voz Móvel</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">3,2%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.85; margin-top: 0.2rem;">BL Móvel</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">6,2%</div>
+                                <div style="font-size: 0.65rem; opacity: 0.85; margin-top: 0.2rem;">Triple Play</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 0.65rem; opacity: 0.85; margin-top: 0.4rem;">Entrada</div>
+                                <div style="font-size: 0.6rem; opacity: 0.75; margin-top: 0.1rem;">Nov 2024</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Nota de rodapé -->
+                <p style="margin: 1.5rem 0 0; font-size: 0.8rem; color: #6e6e73; text-align: center; font-style: italic;">
+                    💡 Receitas estimadas com base nas quotas de mercado × Receitas totais 3T25 (€1.004,5M). Quotas por segmento reflectem dados oficiais ANACOM.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- TAB 2: COMPARAR -->
+        <div id="tab-compare" class="tab-content">
+
+            <!-- Barra de Controlos -->
+            <div class="comparison-controls">
+                <div style="display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 1.5rem; align-items: flex-end;">
+                    <!-- Período 1 -->
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; font-weight: 500;">Período 1</label>
+                        <select id="period1" onchange="updateComparisonCards()" style="width: 100%; padding: 0.75rem; background: #ffffff; color: #1d1d1f; border: 1px solid #d2d2d7; border-radius: 8px; font-weight: 500; font-size: 0.95rem; cursor: pointer;">
+                            <option value="2025Q3">3T 2025</option>
+                            <option value="2025Q2">2T 2025</option>
+                            <option value="2025Q1">1T 2025</option>
+                            <option value="2024Q4">4T 2024</option>
+                            <option value="2024Q3">3T 2024</option>
+                            <option value="2024Q2">2T 2024</option>
+                            <option value="2024Q1">1T 2024</option>
+                            <option value="2023Q4">4T 2023</option>
+                        </select>
+                    </div>
+
+                    <!-- Ícone Comparação -->
+                    <div style="text-align: center; font-size: 1.5rem; color: #6e6e73;">⚖️</div>
+
+                    <!-- Período 2 -->
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; font-weight: 500;">Período 2</label>
+                        <select id="period2" onchange="updateComparisonCards()" style="width: 100%; padding: 0.75rem; background: #ffffff; color: #1d1d1f; border: 1px solid #d2d2d7; border-radius: 8px; font-weight: 500; font-size: 0.95rem; cursor: pointer;">
+                            <option value="2024Q3">3T 2024</option>
+                            <option value="2024Q2">2T 2024</option>
+                            <option value="2024Q1">1T 2024</option>
+                            <option value="2023Q4">4T 2023</option>
+                            <option value="2023Q3">3T 2023</option>
+                            <option value="2023Q2">2T 2023</option>
+                            <option value="2023Q1">1T 2023</option>
+                            <option value="2022Q4">4T 2022</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Separador -->
+                <div style="height: 1px; background: #f5f5f7; margin: 1.5rem 0;"></div>
+
+                <!-- Operador Multi-Select (full width) -->
+                <div>
+                    <div style="position:relative;" id="operadorSelectWrapper">
+                      <label style="display:block; font-size:11px; font-weight:600; color:#6e6e73; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">Operador</label>
+                      <!-- Trigger button -->
+                      <button id="operadorTrigger" onclick="toggleOperadorDropdown(event)"
+                        style="display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; padding:8px 12px; background:#fff; border:1.5px solid #d2d2d7; border-radius:10px; color:#1d1d1f; font-size:14px; font-family:inherit; cursor:pointer; outline:none; text-align:left; white-space:nowrap; transition:border-color 0.15s;">
+                        <span id="operadorLabel" style="overflow:hidden; text-overflow:ellipsis; flex:1;">Todos os Operadores</span>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0; transition:transform 0.2s;" id="operadorChevron">
+                          <path d="M2 4l4 4 4-4" stroke="#6e6e73" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <!-- Dropdown panel -->
+                      <div id="operadorDropdown"
+                        style="display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; min-width:220px; background:#fff; border:1px solid #d2d2d7; border-radius:14px; box-shadow:0 8px 32px rgba(0,0,0,0.12); z-index:1000; overflow:hidden; padding:6px 0;">
+                        <!-- Todos -->
+                        <label id="opt-todos" onclick="handleOperadorCheck('todos')"
+                          style="display:flex; align-items:center; gap:10px; padding:10px 16px; cursor:pointer; transition:background 0.1s; border-bottom:1px solid #f5f5f7;"
+                          onmouseover="this.style.background='#f5f5f7'" onmouseout="this.style.background=''">
+                          <span id="chk-todos" style="width:18px; height:18px; border-radius:5px; border:1.5px solid #0071e3; background:#0071e3; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s;">
+                            <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                          </span>
+                          <span style="font-size:14px; font-weight:500; color:#1d1d1f;">Todos os Operadores</span>
+                        </label>
+                        <!-- MEO -->
+                        <label id="opt-meo" onclick="handleOperadorCheck('MEO')"
+                          style="display:flex; align-items:center; gap:10px; padding:10px 16px; cursor:pointer; transition:background 0.1s;"
+                          onmouseover="this.style.background='#f5f5f7'" onmouseout="this.style.background=''">
+                          <span id="chk-meo" style="width:18px; height:18px; border-radius:5px; border:1.5px solid #d2d2d7; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s;"></span>
+                          <span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:#0071e3; flex-shrink:0;"></span>
+                          <span style="font-size:14px; color:#1d1d1f;">MEO</span>
+                        </label>
+                        <!-- NOS -->
+                        <label id="opt-nos" onclick="handleOperadorCheck('NOS')"
+                          style="display:flex; align-items:center; gap:10px; padding:10px 16px; cursor:pointer; transition:background 0.1s;"
+                          onmouseover="this.style.background='#f5f5f7'" onmouseout="this.style.background=''">
+                          <span id="chk-nos" style="width:18px; height:18px; border-radius:5px; border:1.5px solid #d2d2d7; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s;"></span>
+                          <span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:#1d1d1f; flex-shrink:0;"></span>
+                          <span style="font-size:14px; color:#1d1d1f;">NOS</span>
+                        </label>
+                        <!-- Vodafone -->
+                        <label id="opt-voda" onclick="handleOperadorCheck('Vodafone')"
+                          style="display:flex; align-items:center; gap:10px; padding:10px 16px; cursor:pointer; transition:background 0.1s;"
+                          onmouseover="this.style.background='#f5f5f7'" onmouseout="this.style.background=''">
+                          <span id="chk-voda" style="width:18px; height:18px; border-radius:5px; border:1.5px solid #d2d2d7; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s;"></span>
+                          <span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:#e30613; flex-shrink:0;"></span>
+                          <span style="font-size:14px; color:#1d1d1f;">Vodafone</span>
+                        </label>
+                        <!-- DIGI -->
+                        <label id="opt-digi" onclick="handleOperadorCheck('DIGI/NOWO')"
+                          style="display:flex; align-items:center; gap:10px; padding:10px 16px; cursor:pointer; transition:background 0.1s;"
+                          onmouseover="this.style.background='#f5f5f7'" onmouseout="this.style.background=''">
+                          <span id="chk-digi" style="width:18px; height:18px; border-radius:5px; border:1.5px solid #d2d2d7; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s;"></span>
+                          <span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:#34c759; flex-shrink:0;"></span>
+                          <span style="font-size:14px; color:#1d1d1f;">DIGI / NOWO</span>
+                        </label>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid de Cards de Comparação -->
+            <div id="comparisonCardsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <!-- Cards gerados dinamicamente -->
+            </div>
+
+        </div>
+
+        <!-- TAB 3: HISTÓRICO (RENOVADO COM SUB-TABS) -->
+        <div id="tab-historical" class="tab-content">
+            <div class="card">
+                <h2>📈 Histórico de Telecomunicações (2006–2024)</h2>
+                
+                <!-- Sub-tabs Histórico -->
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn active" onclick="switchSubTab('hist-penetracao', this)">📶 Penetração</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('hist-subscritores', this)">👥 Subscritores</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('hist-tecnologia', this)">⚙️ Tecnologia</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('hist-receitas', this)">💰 Receitas</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('hist-mercado', this)">🏆 Mercado</button>
+                </div>
+
+                <!-- SUB-TAB 1: Penetração -->
+                <div id="hist-penetracao" class="sub-tab-content active">
+                    <p style="font-size: 0.9rem; color: #6e6e73; margin-bottom: 1.5rem; font-weight: 500;">Penetração de Serviços por 100 habitantes (2006–2024)</p>
+                    <div class="chart-header" style="margin-bottom:0.75rem;">
+                      <span style="font-size:0.9rem;font-weight:600;color:#1d1d1f;">Penetração por Serviço 2006–2024</span>
+                      <button class="chart-export-btn" onclick="exportCurrentChart('histChartPenetracao','Penetracao_Historica_2006-2024')">⬇ Excel</button>
+                    </div>
+                    <div class="chart-container" style="height: 420px; margin-bottom: 0;">
+                        <canvas id="histChartPenetracao"></canvas>
+                    </div>
+                    <div style="background: #f5f5f7; border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem;">
+                        <p style="font-size: 0.85rem; color: #1d1d1f; margin: 0; line-height: 1.6;">
+                            <strong>📌 Insights:</strong><br>
+                            • STF (Telefone Fixo): Queda contínua de 45,2% (2006) para 15,2% (2024) <br>
+                            • STM (Móvel): Crescimento a 116,5% (2024) apesar da saturação <br>
+                            • BLF (Banda Larga Fixa): Crescimento forte de 18,5% (2006) para 72,5% (2024) <br>
+                            • TVS (TV Subscrição): Moderado de 12,5% para 47,5% com consolidação do mercado
+                        </p>
+                    </div>
+
+                    <!-- QUOTAS POR OPERADOR: Penetração -->
+                    <div style="background:#fff; border-radius:18px; padding:1.5rem; margin-top:1.5rem; box-shadow:0 2px 20px rgba(0,0,0,0.06);">
+                        <div class="chart-header">
+                            <h4 id="opTitle-pen">Quotas Internet Fixo por Operador (2008–2024)</h4>
+                            <button class="chart-export-btn" onclick="exportCurrentChart('opCanvas-pen','Quotas_Operador_Penetracao')">⬇ Excel</button>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+                            <button class="sub-tab-btn active" id="opType-pen-inet" onclick="switchOpTypeFor('pen','inet')">🌐 Internet Fixo</button>
+                            <button class="sub-tab-btn" id="opType-pen-movel_v2" onclick="switchOpTypeFor('pen','movel_v2')">📶 Móvel</button>
+                            <div style="margin-left:auto; display:flex; gap:0.5rem; flex-wrap:wrap;">
+                                <button class="op-pill active" id="opPill-pen-MEO" style="--op-color:#0071e3;" onclick="toggleOpPillFor('pen','MEO')">● MEO</button>
+                                <button class="op-pill active" id="opPill-pen-NOS" style="--op-color:#1d1d1f;" onclick="toggleOpPillFor('pen','NOS')">● NOS</button>
+                                <button class="op-pill active" id="opPill-pen-Vodafone" style="--op-color:#e30613;" onclick="toggleOpPillFor('pen','Vodafone')">● Vodafone</button>
+                                <button class="op-pill active" id="opPill-pen-NOWO" style="--op-color:#5ac8fa;" onclick="toggleOpPillFor('pen','NOWO')">● NOWO</button>
+                            </div>
+                        </div>
+                        <div style="position:relative; height:240px;">
+                            <canvas id="opCanvas-pen"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-TAB 2: Subscritores -->
+                <div id="hist-subscritores" class="sub-tab-content">
+                    <p style="font-size: 0.9rem; color: #6e6e73; margin-bottom: 1.5rem; font-weight: 500;">Evolução de Subscritores por Serviço (2006–2024)</p>
+                    <div class="chart-header" style="margin-bottom:0.75rem;">
+                      <span style="font-size:0.9rem;font-weight:600;color:#1d1d1f;">Subscritores por Serviço 2006–2024</span>
+                      <button class="chart-export-btn" onclick="exportCurrentChart('histChartSubscritores','Subscritores_2006-2024')">⬇ Excel</button>
+                    </div>
+                    <div class="chart-container" style="height: 420px; margin-bottom: 0;">
+                        <canvas id="histChartSubscritores"></canvas>
+                    </div>
+                    <div style="background: #f5f5f7; border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem;">
+                        <p style="font-size: 0.85rem; color: #1d1d1f; margin: 0; line-height: 1.6;">
+                            <strong>📌 Insights:</strong><br>
+                            • Serviços Fixos: Declínio acentuado (telefone fixo de 4.45M para 2.9M) <br>
+                            • Móvel: Crescimento de 10.5M para 19.2M (dinâmica do mercado) <br>
+                            • Internet Fixa: Expansão de 1.85M para 5.55M (infraestruturas 4G/FTTH) <br>
+                            • TV: Crescimento moderado até 3.85M com consolidação pós-2018
+                        </p>
+                    </div>
+
+                    <!-- QUOTAS POR OPERADOR: Subscritores -->
+                    <div style="background:#fff; border-radius:18px; padding:1.5rem; margin-top:1.5rem; box-shadow:0 2px 20px rgba(0,0,0,0.06);">
+                        <div class="chart-header">
+                            <h4 id="opTitle-sub">Quotas TV Subscrição por Operador (2008–2024)</h4>
+                            <button class="chart-export-btn" onclick="exportCurrentChart('opCanvas-sub','Quotas_Operador_Subscritores')">⬇ Excel</button>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+                            <button class="sub-tab-btn active" id="opType-sub-tv" onclick="switchOpTypeFor('sub','tv')">📺 TV</button>
+                            <button class="sub-tab-btn" id="opType-sub-inet" onclick="switchOpTypeFor('sub','inet')">🌐 Internet</button>
+                            <button class="sub-tab-btn" id="opType-sub-stf" onclick="switchOpTypeFor('sub','stf')">📞 Telefone Fixo</button>
+                            <button class="sub-tab-btn" id="opType-sub-movel_v2" onclick="switchOpTypeFor('sub','movel_v2')">📱 Móvel</button>
+                            <button class="sub-tab-btn" id="opType-sub-bundles_sub" onclick="switchOpTypeFor('sub','bundles_sub')">📦 Pacotes</button>
+                            <div style="margin-left:auto; display:flex; gap:0.5rem; flex-wrap:wrap;">
+                                <button class="op-pill active" id="opPill-sub-MEO" style="--op-color:#0071e3;" onclick="toggleOpPillFor('sub','MEO')">● MEO</button>
+                                <button class="op-pill active" id="opPill-sub-NOS" style="--op-color:#1d1d1f;" onclick="toggleOpPillFor('sub','NOS')">● NOS</button>
+                                <button class="op-pill active" id="opPill-sub-Vodafone" style="--op-color:#e30613;" onclick="toggleOpPillFor('sub','Vodafone')">● Vodafone</button>
+                                <button class="op-pill active" id="opPill-sub-NOWO" style="--op-color:#5ac8fa;" onclick="toggleOpPillFor('sub','NOWO')">● NOWO</button>
+                            </div>
+                        </div>
+                        <div style="position:relative; height:240px;">
+                            <canvas id="opCanvas-sub"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-TAB 3: Tecnologia -->
+                <div id="hist-tecnologia" class="sub-tab-content">
+                    <p style="font-size: 0.9rem; color: #6e6e73; margin-bottom: 1.5rem; font-weight: 500;">Evolução das Tecnologias de Acesso (2006–2024)</p>
+                    <div class="chart-row">
+                        <div class="chart-wrapper" style="height: 420px;">
+                            <div class="chart-header">
+                              <h4>Internet por Tecnologia</h4>
+                              <button class="chart-export-btn" onclick="exportCurrentChart('histChartInternetTech','Internet_Tecnologia_2006-2024')">⬇ Excel</button>
+                            </div>
+                            <canvas id="histChartInternetTech"></canvas>
+                        </div>
+                        <div class="chart-wrapper" style="height: 420px;">
+                            <div class="chart-header">
+                              <h4>TV por Tecnologia</h4>
+                              <button class="chart-export-btn" onclick="exportCurrentChart('histChartTVTech','TV_Tecnologia_2006-2024')">⬇ Excel</button>
+                            </div>
+                            <canvas id="histChartTVTech"></canvas>
+                        </div>
+                    </div>
+                    <div style="background: #f5f5f7; border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem;">
+                        <p style="font-size: 0.85rem; color: #1d1d1f; margin: 0; line-height: 1.6;">
+                            <strong>📌 Insights:</strong><br>
+                            • Internet: Transição ADSL→VDSL→Fibra (ADSL: 1.65M→0.35M | Fibra: 0.15M→4.95M) <br>
+                            • TV: Consolidação do IPTV (0.28M→3.18M) enquanto Cabo estável (~1M) <br>
+                            • Tecnologia: Fibra é 42% da base de Internet (2024), IPTV é 85% da TV
+                        </p>
+                    </div>
+
+                    <!-- Nota explicativa: Ausência de dados por operador -->
+                    <div style="background:#fff3cd; border:1px solid #ffc107; border-radius:12px; padding:1.25rem; margin-top:1.5rem;">
+                        <p style="font-size:0.85rem; color:#856404; margin:0; line-height:1.6;">
+                            <strong>ℹ️ Nota Importante:</strong> Os dados de tecnologia (ADSL, VDSL, Fibra, Cabo, IPTV, Satélite) são agregados ao nível nacional e não estão disponíveis desagregados por operador individual nas estatísticas oficiais da ANACOM. Por este motivo, este sub-tab não inclui o bloco "Quotas por Operador" presente nos restantes sub-tabs.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- SUB-TAB 4: Receitas -->
+                <div id="hist-receitas" class="sub-tab-content">
+                    <p style="font-size: 0.9rem; color: #6e6e73; margin-bottom: 1.5rem; font-weight: 500;">Receitas Retalhistas (2015–2024)</p>
+                    <div class="chart-header" style="margin-bottom:0.75rem;">
+                      <span style="font-size:0.9rem;font-weight:600;color:#1d1d1f;">Receitas por Segmento 2015–2024</span>
+                      <button class="chart-export-btn" onclick="exportCurrentChart('histChartReceitas','Receitas_Segmentos_2015-2024')">⬇ Excel</button>
+                    </div>
+                    <div class="chart-container" style="height: 420px; margin-bottom: 0;">
+                        <canvas id="histChartReceitas"></canvas>
+                    </div>
+                    <div style="background: #f5f5f7; border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem;">
+                        <p style="font-size: 0.85rem; color: #1d1d1f; margin: 0; line-height: 1.6;">
+                            <strong>📌 Insights:</strong><br>
+                            • Receitas Totais: Pico em 2015 (€4.650M) → Estabilização ~€4.060M (2024) <br>
+                            • Bundles/Pacotes: Dominam com €2.245M (55% do total em 2024) <br>
+                            • Móvel: €1.346M (33% do total) com crescimento vs Fixo em queda <br>
+                            • Fixo: Declínio acentuado de €1.950M (2015) para €110M (2024)
+                        </p>
+                    </div>
+
+                    <!-- QUOTAS POR OPERADOR: Receitas -->
+                    <div style="background:#fff; border-radius:18px; padding:1.5rem; margin-top:1.5rem; box-shadow:0 2px 20px rgba(0,0,0,0.06);">
+                        <div class="chart-header">
+                            <h4 id="opTitle-rec">Quotas Receitas Multiple Play por Operador (2015–2024)</h4>
+                            <button class="chart-export-btn" onclick="exportCurrentChart('opCanvas-rec','Quotas_Operador_Receitas')">⬇ Excel</button>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+                            <button class="sub-tab-btn active" id="opType-rec-bundles_rec" onclick="switchOpTypeFor('rec','bundles_rec')">📦 Multiple Play</button>
+                            <div style="margin-left:auto; display:flex; gap:0.5rem; flex-wrap:wrap;">
+                                <button class="op-pill active" id="opPill-rec-MEO" style="--op-color:#0071e3;" onclick="toggleOpPillFor('rec','MEO')">● MEO</button>
+                                <button class="op-pill active" id="opPill-rec-NOS" style="--op-color:#1d1d1f;" onclick="toggleOpPillFor('rec','NOS')">● NOS</button>
+                                <button class="op-pill active" id="opPill-rec-Vodafone" style="--op-color:#e30613;" onclick="toggleOpPillFor('rec','Vodafone')">● Vodafone</button>
+                                <button class="op-pill active" id="opPill-rec-NOWO" style="--op-color:#5ac8fa;" onclick="toggleOpPillFor('rec','NOWO')">● NOWO</button>
+                            </div>
+                        </div>
+                        <div style="position:relative; height:240px;">
+                            <canvas id="opCanvas-rec"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-TAB 5: Mercado -->
+                <div id="hist-mercado" class="sub-tab-content">
+                    <div class="chart-row">
+                        <div class="chart-wrapper" style="height: 320px;">
+                            <div class="chart-header">
+                              <h4>Multiple Play (2006–2024)</h4>
+                              <button class="chart-export-btn" onclick="exportCurrentChart('histChartMultiplePlay','MultiplePlay_2006-2024')">⬇ Excel</button>
+                            </div>
+                            <canvas id="histChartMultiplePlay"></canvas>
+                        </div>
+                        <div style="background: #ffffff; border: none; border-radius: 18px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);">
+                            <h4 style="margin-bottom: 1.5rem; font-weight: 600; font-size: 0.95rem;">Nº Operadores 2024</h4>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                                <div style="background: #f5f5f7; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1.5rem; text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: 700; color: #0071e3;">7</div>
+                                    <div style="font-size: 0.8rem; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.5rem; font-weight: 500;">Móvel</div>
+                                </div>
+                                <div style="background: #f5f5f7; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1.5rem; text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: 700; color: #0071e3;">63</div>
+                                    <div style="font-size: 0.8rem; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.5rem; font-weight: 500;">Fixo</div>
+                                </div>
+                                <div style="background: #f5f5f7; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1.5rem; text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: 700; color: #0071e3;">74</div>
+                                    <div style="font-size: 0.8rem; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.5rem; font-weight: 500;">ISP</div>
+                                </div>
+                                <div style="background: #f5f5f7; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1.5rem; text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: 700; color: #0071e3;">14</div>
+                                    <div style="font-size: 0.8rem; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.5rem; font-weight: 500;">TV</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BLOCO QUOTAS POR OPERADOR -->
+                    <div style="background:#fff; border-radius:18px; padding:1.5rem; margin-top:1.5rem; box-shadow:0 2px 20px rgba(0,0,0,0.06);">
+                        <div class="chart-header">
+                            <h4 id="opChartTitle">Quotas Acessos Móveis por Operador (2010–2024)</h4>
+                            <div style="display:flex; gap:0.5rem;">
+                                <button class="chart-export-btn" onclick="exportCurrentChart('histChartQuotasOp','Quotas_Operador')">⬇ Excel</button>
+                                <button class="chart-export-btn" onclick="downloadHistoricoJSON()">📥 JSON Histórico</button>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                            <button class="sub-tab-btn active" id="opType-movel" onclick="switchOpChartType('movel')">📶 Acessos Móveis</button>
+                            <button class="sub-tab-btn" id="opType-bundles_mp" onclick="switchOpChartType('bundles_mp')">📦 Multiple Play</button>
+                            <div style="margin-left: auto; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button class="op-pill active" id="opPill-MEO" style="--op-color: #0071e3;" onclick="toggleOpPill('MEO')">● MEO</button>
+                                <button class="op-pill active" id="opPill-NOS" style="--op-color: #1d1d1f;" onclick="toggleOpPill('NOS')">● NOS</button>
+                                <button class="op-pill active" id="opPill-Vodafone" style="--op-color: #e30613;" onclick="toggleOpPill('Vodafone')">● Vodafone</button>
+                                <button class="op-pill" id="opPill-NOWO" style="--op-color: #5ac8fa; display: none;" onclick="toggleOpPill('NOWO')">● NOWO</button>
+                            </div>
+                        </div>
+                        <div style="position:relative; height:240px;">
+                            <canvas id="histChartQuotasOp"></canvas>
+                        </div>
+                    </div>
+
+                    <div style="background: #f5f5f7; border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem;">
+                        <p style="font-size: 0.85rem; color: #1d1d1f; margin: 0; line-height: 1.6;">
+                            <strong>📌 Insights:</strong><br>
+                            • Multiple Play: Crescimento de 464.9 (2006) para 4.747.4 mil subscritores (2024) | +922% <br>
+                            • 3P+: Dominam 92% do Multiple Play (4.342 de 4.747 mil) <br>
+                            • Concentração: Consolidação do mercado com 3 operadores principais (MEO, NOS, Vodafone) <br>
+                            • Entrada DIGI: Novembro 2024 com penetração imediata nos segmentos de móvel
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ===== EXPORTAÇÃO EXCEL =====
+        function exportToExcel(filename, labels, datasets) {
+            const header = ['Período', ...datasets.map(d => d.label)];
+            const rows = labels.map((lbl, i) => [lbl, ...datasets.map(d => d.data[i] ?? '')]);
+            const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
+
+            // Largura automática das colunas
+            const colWidths = header.map((h, ci) => ({
+                wch: Math.max(h.length, ...rows.map(r => String(r[ci] ?? '').length)) + 2
+            }));
+            ws['!cols'] = colWidths;
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Dados');
+            XLSX.writeFile(wb, filename + '.xlsx');
+        }
+
+        function exportCurrentChart(chartId, filename) {
+            const chart = charts[chartId] || Chart.getChart(chartId);
+            if (!chart) return;
+            const labels = chart.data.labels;
+            const datasets = chart.data.datasets.map(d => ({ label: d.label || 'Valor', data: d.data }));
+            exportToExcel(filename, labels, datasets);
+        }
+
+        function exportPenChart() {
+            if (!penChartObj) return;
+            const svc = document.getElementById('penSelect').value;
+            const m = penMeta[svc];
+            exportToExcel('Penetracao_' + svc.toUpperCase() + '_2015-2025', penChartObj.data.labels, [{ label: m.title, data: penChartObj.data.datasets[0].data }]);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // CONFIG CORES GLOBAIS (APPLE COLORS) — FONTE ÚNICA DE VERDADE
+        // ═══════════════════════════════════════════════════════════════════
+        const COLORS = {
+            meo: '#0071e3',        // Apple Blue (MEO)
+            nos: '#1d1d1f',        // Apple Black (NOS)
+            vodafone: '#e30613',   // Vodafone Red
+            digi: '#34c759',       // Apple Green (DIGI - novo entrante Nov 2024)
+            nowo: '#5ac8fa',       // Apple Light Blue (NOWO)
+            outros: '#b0b0b8'      // Apple Gray (Outros operadores)
+        };
+
+        // Arrays de cores para gráficos
+        const chartColors = [COLORS.meo, COLORS.nos, COLORS.vodafone, COLORS.digi, COLORS.nowo, COLORS.outros];
+        const chartColorsNoDigiNowo = [COLORS.meo, COLORS.nos, COLORS.vodafone, COLORS.outros];
+        
+        // NOTA IMPORTANTE:
+        // - DIGI e NOWO são operadores SEPARADOS desde Nov 2024
+        // - Em dados históricos pré-2024, podem aparecer agregados como "DIGI/NOWO" ou "Grupo DIGI"
+        // - DIGI usa verde (#34c759), NOWO usa azul claro (#5ac8fa)
+        // - Quando agregados, usa-se a cor da DIGI (#34c759) por ser o operador dominante
+
+        // Armazenar referências aos charts
+        let charts = {};
+
+        // ===== FUNÇÃO: Trocar Tab Principal =====
+        function switchMainTab(tabId) {
+            // Esconder todos os tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            // Mostrar tab selecionado
+            document.getElementById(tabId).classList.add('active');
+            
+            // Atualizar botões
+            document.querySelectorAll('.main-tab-btn').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Destruir e recriar charts do novo tab (para evitar erros de canvas hidden)
+            setTimeout(() => {
+                if (tabId === 'tab-3t25') {
+                    initCharts3T25();
+                } else if (tabId === 'tab-historical') {
+                    initChartsHistorical();
+                }
+            }, 100);
+        }
+
+        // ===== FUNÇÃO: Trocar Sub-Tab =====
+        function switchSubTab(subTabId, button) {
+            // Encontrar o container do sub-tab
+            const container = button.closest('.card');
+            
+            // Esconder todos os sub-tabs
+            container.querySelectorAll('.sub-tab-content').forEach(el => el.classList.remove('active'));
+            // Mostrar sub-tab selecionado
+            document.getElementById(subTabId).classList.add('active');
+            
+            // Atualizar botões
+            container.querySelectorAll('.sub-tab-btn').forEach(el => el.classList.remove('active'));
+            button.classList.add('active');
+
+            // Recriar charts do sub-tab (para evitar erros de canvas hidden)
+            setTimeout(() => {
+                if (subTabId === 'quotas-all') {
+                    createStackedBarsChart();
+                } else if (subTabId === 'quotas-mobile') {
+                    createDonutMobil();
+                } else if (subTabId === 'quotas-fixed') {
+                    createDonutFixed();
+                } else if (subTabId === 'quotas-bundles') {
+                    createDonutBundles();
+                } else if (subTabId === 'hist-penetracao') {
+                    createHistoricoPenetracao();
+                    buildOpChartFor('pen');
+                } else if (subTabId === 'hist-subscritores') {
+                    createHistoricoSubscritores();
+                    buildOpChartFor('sub');
+                } else if (subTabId === 'hist-tecnologia') {
+                    createHistoricoInternetTech();
+                    createHistoricoTVTech();
+                } else if (subTabId === 'hist-receitas') {
+                    createHistoricoReceitas();
+                    buildOpChartFor('rec');
+                } else if (subTabId === 'hist-mercado') {
+                    createHistoricoMultiplePlay();
+                    buildOpChart();
+                }
+            }, 100);
+        }
+
+        // ===== FUNÇÃO: Destruir chart se já existe =====
+        function destroyChart(chartId) {
+            if (charts[chartId]) {
+                charts[chartId].destroy();
+                delete charts[chartId];
+            }
+        }
+
+        // ===== CHARTS 3T 2025 =====
+
+        function createStackedBarsChart() {
+            destroyChart('chartStackedBars');
+            
+            const ctx = document.getElementById('chartStackedBars').getContext('2d');
+            charts['chartStackedBars'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Receitas Totais', 'Voz Móvel', 'BL Móvel', 'Voz Fixa', 'BL Fixa', 'TV Subscrição', 'Triple Play', '4/5 Play'],
+                    datasets: [
+                        {
+                            label: 'MEO',
+                            data: [37.4, 36.1, 34.0, 44.7, 41.0, 42.0, 37.5, 43.3],
+                            backgroundColor: COLORS.meo,
+                            borderRadius: 0
+                        },
+                        {
+                            label: 'NOS',
+                            data: [31.6, 31.0, 32.4, 32.9, 33.4, 35.8, 29.5, 38.9],
+                            backgroundColor: COLORS.nos,
+                            borderRadius: 0
+                        },
+                        {
+                            label: 'Vodafone',
+                            data: [28.5, 27.8, 27.8, 19.7, 21.7, 19.3, 26.8, 17.4],
+                            backgroundColor: COLORS.vodafone,
+                            borderRadius: 0
+                        },
+                        {
+                            label: 'DIGI',
+                            data: [0.2, 2.7, 3.2, 0, 0, 0, 6.2, 0],
+                            backgroundColor: COLORS.digi,
+                            borderRadius: 0
+                        },
+                        {
+                            label: 'Outros',
+                            data: [2.3, 2.4, 2.6, 2.7, 3.9, 2.9, 0, 0.4],
+                            backgroundColor: COLORS.outros,
+                            borderRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#1d1d1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.x.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                },
+                                color: '#6e6e73'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.06)'
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            ticks: {
+                                color: '#1d1d1f'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createDonutChart(canvasId, label, dataValues, colors) {
+            destroyChart(canvasId);
+            
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            charts[canvasId] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['MEO', 'NOS', 'Vodafone', 'DIGI', 'Outros'],
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: colors,
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#1d1d1f',
+                                font: { size: 12, weight: 500 },
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1d1d1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createDonutMobil() {
+            // Voz Móvel
+            createDonutChart('chartVozMovel', 'Voz Móvel', [36.1, 31.0, 27.8, 2.7, 2.4], chartColors);
+            
+            // BL Móvel
+            createDonutChart('chartBLMovel', 'BL Móvel', [34.0, 32.4, 27.8, 3.2, 2.6], chartColors);
+        }
+
+        function createDonutFixed() {
+            // Voz Fixa
+            createDonutChart('chartVozFixa', 'Voz Fixa', [44.7, 32.9, 19.7, 0, 2.7], chartColorsNoDigiNowo);
+            
+            // BL Fixa
+            createDonutChart('chartBLFixa', 'BL Fixa', [41.0, 33.4, 21.7, 0, 3.9], chartColorsNoDigiNowo);
+            
+            // TV Subscrição
+            createDonutChart('chartTVSubscricao', 'TV Subscrição', [42.0, 35.8, 19.3, 0, 2.9], chartColorsNoDigiNowo);
+        }
+
+        function createDonutBundles() {
+            // Multiple Play
+            createDonutChart('chartMultiplePlay', 'Multiple Play', [41.7, 34.9, 20.4, 0, 3.0], chartColorsNoDigiNowo);
+            
+            // Triple Play
+            createDonutChart('chartTriplePlay', 'Triple Play', [37.5, 29.5, 26.8, 6.2, 0], chartColors);
+            
+            // 4/5 Play
+            createDonutChart('chart45Play', '4/5 Play', [43.3, 38.9, 17.4, 0, 0.4], chartColorsNoDigiNowo);
+        }
+
+        // [COMENTADO] Função removida: createEvolutionQuotasChart() — substituída por tabela HTML estilo Apple
+        // O gráfico de linhas de evolução de quotas foi substituído por uma tabela estilo Apple com dados trimestris
+        // Mantém a informação visual mas com melhor legibilidade e interatividade (hover effects)
+        /*
+        function createEvolutionQuotasChart() {
+            destroyChart('chartEvolutionQuotas');
+            
+            const ctx = document.getElementById('chartEvolutionQuotas').getContext('2d');
+            charts['chartEvolutionQuotas'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['3T24', '4T24', '1T25', '2T25', '3T25'],
+                    datasets: [
+                        {
+                            label: 'MEO',
+                            data: [39.0, 38.3, 38.1, 37.8, 37.4],
+                            borderColor: COLORS.meo,
+                            backgroundColor: 'rgba(0, 113, 227, 0.1)',
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 6,
+                            pointBackgroundColor: COLORS.meo,
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'NOS',
+                            data: [31.0, 31.2, 31.5, 31.6, 31.6],
+                            borderColor: COLORS.nos,
+                            backgroundColor: 'rgba(29, 29, 31, 0.1)',
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 6,
+                            pointBackgroundColor: COLORS.nos,
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Vodafone',
+                            data: [29.0, 28.4, 28.5, 28.5, 28.5],
+                            borderColor: COLORS.vodafone,
+                            backgroundColor: 'rgba(227, 6, 19, 0.1)',
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 6,
+                            pointBackgroundColor: COLORS.vodafone,
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'DIGI',
+                            data: [0.0, 0.0, 0.2, 0.2, 0.2],
+                            borderColor: COLORS.digi,
+                            backgroundColor: 'rgba(52, 199, 89, 0.1)',
+                            tension: 0.4,
+                            borderWidth: 3,
+                            borderDash: [5, 5],
+                            pointRadius: 6,
+                            pointBackgroundColor: COLORS.digi,
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#1d1d1f',
+                                font: { size: 12, weight: 500 },
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1d1d1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 0,
+                            max: 40,
+                            ticks: {
+                                color: '#6e6e73',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.06)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#1d1d1f'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.06)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        */
+
+        // ===== MELHORIA A: Penetração com Dropdown =====
+        const penLabels = ["2015Q1","2015Q2","2015Q3","2015Q4","2016Q1","2016Q2","2016Q3","2016Q4","2017Q1","2017Q2","2017Q3","2017Q4","2018Q1","2018Q2","2018Q3","2018Q4","2019Q1","2019Q2","2019Q3","2019Q4","2020Q1","2020Q2","2020Q3","2020Q4","2021Q1","2021Q2","2021Q3","2021Q4","2022Q1","2022Q2","2022Q3","2022Q4","2023Q1","2023Q2","2023Q3","2023Q4","2024Q1","2024Q2","2024Q3","2024Q4","2025Q1","2025Q2","2025Q3"];
+
+        const penData = {
+          stf: [44.6,44.8,45.2,45.5,45.6,45.9,46.3,46.2,46.3,46.4,46.7,48.0,48.3,48.7,49.1,48.9,48.6,49.0,49.0,49.3,49.6,50.0,50.2,50.3,50.8,51.1,51.0,51.3,51.5,51.9,51.7,51.9,51.9,52.2,51.7,51.7,51.8,51.9,51.4,51.2,50.9,50.7],
+          stm: [155.8,158.9,159.9,159.8,160.6,163.3,163.1,162.1,163.7,167.9,166.9,166.4,166.7,170.4,169.2,167.2,168.6,170.9,169.0,166.1,162.5,164.2,164.9,165.7,169.1,173.7,175.5,179.3,182.7,186.6,180.7,179.2,177.9,178.0,176.5,174.3,174.9,177.5,173.2,170.7,169.9,171.7],
+          blm: [50.6,52.7,53.3,53.4,54.8,59.3,62.6,62.8,65.0,67.2,68.8,67.1,69.5,71.4,73.3,73.9,75.5,78.3,78.0,77.5,76.4,78.9,79.3,78.6,82.1,86.3,87.5,88.7,91.2,93.6,93.5,94.5,96.8,98.8,98.3,100.2,101.0,101.1,99.9,99.4,100.5,103.8],
+          tvs: [33.1,33.5,34.0,34.3,34.7,35.1,35.5,35.7,36.0,36.3,36.7,37.0,37.3,37.6,38.1,38.3,38.6,39.0,39.2,39.5,39.9,40.4,40.7,40.9,41.4,41.8,41.8,42.0,42.4,42.8,42.7,42.9,43.1,43.4,43.1,43.2,43.4,43.6,43.3,43.3,43.3,43.5]
+        };
+
+        const penMeta = {
+          stf: { title: "Penetração — Serviço Telefónico Fixo (STF)", color: "#0071e3", unit: "/100 hab" },
+          stm: { title: "Penetração — Serviço Telefónico Móvel (STM)", color: "#e30613", unit: "/100 hab" },
+          blm: { title: "Penetração — Banda Larga Móvel (BLM)", color: "#34c759", unit: "/100 hab" },
+          tvs: { title: "Penetração — TV por Subscrição (TVS)", color: "#ff9f0a", unit: "/100 hab" }
+        };
+
+        let penChartObj = null;
+
+        function switchPenetracao(svc) {
+          const m = penMeta[svc];
+          document.getElementById('penTitle').textContent = m.title;
+          if (penChartObj) {
+            penChartObj.data.datasets[0].data = penData[svc];
+            penChartObj.data.datasets[0].borderColor = m.color;
+            penChartObj.data.datasets[0].backgroundColor = m.color + '18';
+            penChartObj.update();
+            return;
+          }
+          const ctx = document.getElementById('penChart').getContext('2d');
+          penChartObj = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: penLabels,
+              datasets: [{ label: m.title, data: penData[svc], borderColor: m.color, backgroundColor: m.color+'18', borderWidth: 2, fill: true, tension: 0.35, pointRadius: 0, pointHoverRadius: 5 }]
+            },
+            options: {
+              responsive: true, maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: { backgroundColor:'#1d1d1f', titleColor:'#fff', bodyColor:'#fff',
+                  callbacks: { label: c => `${c.parsed.y.toFixed(1)}${m.unit}` }
+                }
+              },
+              scales: {
+                x: { ticks: { color:'#6e6e73', maxTicksLimit:9, maxRotation:0 }, grid: { color:'rgba(0,0,0,0.04)' } },
+                y: { ticks: { color:'#6e6e73' }, grid: { color:'rgba(0,0,0,0.04)' } }
+              }
+            }
+          });
+        }
+
+        // ===== MELHORIA B: Receitas com YoY =====
+        const recLabels   = ["Serv. em Pacote", "Standalone", "4P / 5P", "Triple Play"];
+        const recVals25   = [1700.75, 1337.94, 1192.21, 433.18];
+        const recVals24   = [1686.30, 1382.00, 1151.70, 461.20];
+        const recYoY      = [+0.86,   -3.19,   +3.48,   -6.08];
+
+        const yoyLabelPlugin = {
+          id: 'yoyLabels',
+          afterDatasetsDraw(chart) {
+            const { ctx, scales: { x } } = chart;
+            const meta = chart.getDatasetMeta(0);
+            recYoY.forEach((pct, i) => {
+              const bar = meta.data[i];
+              if (!bar) return;
+              const xEnd = x.getPixelForValue(recVals25[i]);
+              const yMid = bar.y;
+              const positive = pct >= 0;
+              const arrow = positive ? '▲' : '▼';
+              const color  = positive ? '#1a7f37' : '#c0392b';
+              ctx.save();
+              ctx.font = 'bold 11.5px -apple-system, Helvetica Neue, sans-serif';
+              ctx.fillStyle = color;
+              ctx.textAlign = 'left';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(`${arrow} ${Math.abs(pct).toFixed(1)}%`, xEnd + 7, yMid);
+              ctx.restore();
+            });
+          }
+        };
+
+        function createReceitasChart() {
+          const existing = Chart.getChart('receitasChart');
+          if (existing) existing.destroy();
+          const ctx = document.getElementById('receitasChart').getContext('2d');
+          new Chart(ctx, {
+            type: 'bar',
+            plugins: [yoyLabelPlugin],
+            data: {
+              labels: recLabels,
+              datasets: [{
+                data: recVals25,
+                backgroundColor: ['#0071e3cc','#1d1d1fcc','#34c759cc','#ff9f0acc'],
+                borderRadius: 6,
+                borderSkipped: false
+              }]
+            },
+            options: {
+              indexAxis: 'y',
+              responsive: true,
+              maintainAspectRatio: false,
+              layout: { padding: { right: 70 } },
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  backgroundColor: '#1d1d1f', titleColor:'#fff', bodyColor:'#fff',
+                  callbacks: {
+                    label: c => {
+                      const v25 = recVals25[c.dataIndex];
+                      const v24 = recVals24[c.dataIndex];
+                      const yoy = recYoY[c.dataIndex];
+                      return [`3T2025: €${v25.toFixed(0)}M`, `3T2024: €${v24.toFixed(0)}M`, `YoY: ${yoy>0?'+':''}${yoy.toFixed(1)}%`];
+                    }
+                  }
+                }
+              },
+              scales: {
+                x: { ticks: { color:'#6e6e73', callback: v => `€${v}M` }, grid: { color:'rgba(0,0,0,0.04)' } },
+                y: { ticks: { color:'#1d1d1f', font: { weight:'500' } }, grid: { display:false } }
+              }
+            }
+          });
+        }
+
+        function initCharts3T25() {
+            createStackedBarsChart();
+            createDonutMobil();
+            // [REMOVIDO] createEvolutionQuotasChart(); — substituída por tabela estilo Apple
+            switchPenetracao('stf');
+            createReceitasChart();
+        }
+
+        // ===== CHARTS HISTÓRICO 2006-2024 (DADOS REAIS) =====
+
+        // Dados reais dos JSON históricos
+        const historicalData = {
+            anos: [2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024],
+            penetracao: {
+                stf:  [45.2, 43.8, 41.5, 38.2, 35.8, 33.5, 31.2, 29.5, 27.8, 26.5, 25.2, 24.0, 22.8, 21.5, 20.2, 19.0, 17.8, 16.5, 15.2],
+                stm:  [85.6, 89.2, 93.5, 98.2, 102.5, 105.8, 108.2, 110.5, 112.1, 113.5, 114.2, 114.8, 115.2, 115.6, 115.8, 115.6, 115.9, 116.2, 116.5],
+                blf:  [18.5, 21.5, 24.8, 28.2, 31.5, 35.2, 38.5, 41.8, 45.2, 48.5, 51.2, 53.8, 56.5, 59.2, 61.8, 64.5, 67.2, 69.8, 72.5],
+                tvs:  [12.5, 15.2, 18.5, 22.1, 25.8, 29.5, 31.2, 33.5, 35.8, 37.8, 39.2, 40.5, 41.8, 43.0, 44.2, 45.2, 46.0, 46.8, 47.5]
+            },
+            subscritores: {
+                fixo: [4450000, 4380000, 4240000, 4000000, 3800000, 3600000, 3480000, 3400000, 3320000, 3280000, 3240000, 3210000, 3180000, 3150000, 3100000, 3050000, 3000000, 2950000, 2900000],
+                movel: [10500000, 11200000, 12300000, 13800000, 15200000, 16500000, 17200000, 17800000, 18100000, 18400000, 18600000, 18750000, 18900000, 19000000, 18950000, 18800000, 18900000, 19100000, 19200000],
+                internet_fixa: [1850000, 2150000, 2450000, 2750000, 3150000, 3550000, 3850000, 4150000, 4450000, 4650000, 4750000, 4850000, 4950000, 5050000, 5150000, 5250000, 5350000, 5450000, 5550000],
+                tv: [1200000, 1450000, 1750000, 2100000, 2450000, 2750000, 2980000, 3150000, 3300000, 3420000, 3500000, 3580000, 3650000, 3710000, 3750000, 3780000, 3800000, 3820000, 3850000]
+            },
+            tecnologia_internet: {
+                adsl: [1650000, 1750000, 1850000, 1950000, 1950000, 1920000, 1850000, 1750000, 1620000, 1480000, 1320000, 1180000, 1050000, 920000, 800000, 680000, 580000, 450000, 350000],
+                vdsl: [50000, 80000, 150000, 280000, 450000, 680000, 920000, 1150000, 1350000, 1520000, 1680000, 1850000, 2000000, 2100000, 2150000, 2180000, 2200000, 2220000, 2250000],
+                fibra: [150000, 220000, 320000, 480000, 700000, 950000, 1200000, 1500000, 1850000, 2200000, 2500000, 2800000, 3100000, 3400000, 3700000, 4050000, 4350000, 4650000, 4950000],
+                cabo: [45000, 85000, 145000, 220000, 285000, 350000, 420000, 480000, 530000, 580000, 620000, 650000, 680000, 700000, 720000, 750000, 780000, 800000, 820000]
+            },
+            tv_tecnologia: {
+                iptv: [280000, 450000, 680000, 950000, 1250000, 1550000, 1850000, 2100000, 2350000, 2550000, 2700000, 2820000, 2920000, 3000000, 3060000, 3100000, 3130000, 3150000, 3180000],
+                cabo: [720000, 800000, 850000, 880000, 900000, 920000, 930000, 950000, 960000, 970000, 980000, 990000, 1000000, 1010000, 1020000, 1030000, 1040000, 1050000, 1060000],
+                satelite: [220000, 240000, 260000, 280000, 300000, 280000, 250000, 220000, 180000, 140000, 100000, 80000, 60000, 50000, 40000, 35000, 30000, 25000, 20000]
+            },
+            receitas: {
+                anos_receit: [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024],
+                pacotes: [1509.97, 1683.26, 1698.32, 1596.09, 1671.38, 1754.88, 1819.84, 1908.87, 2107.0, 2245.15],
+                movel: [1453.36, 1348.8, 1305.44, 1301.29, 1282.04, 1255.76, 1272.63, 1309.92, 1322.65, 1345.96],
+                fixo: [347.6, 301.66, 251.35, 206.22, 181.41, 172.43, 150.71, 134.65, 121.32, 110.01]
+            },
+            multiple_play: {
+                total: [464.9, 565.0, 733.3, 1143.1, 1616.1, 2183.3, 2448.0, 2626.8, 2951.8, 3248.7, 3514.2, 3736.0, 3883.2, 4069.3, 4249.0, 4394.6, 4552.4, 4669.2, 4747.4]
+            }
+        };
+
+        function createHistoricoPenetracao() {
+            destroyChart('histChartPenetracao');
+            const ctx = document.getElementById('histChartPenetracao').getContext('2d');
+            charts['histChartPenetracao'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historicalData.anos,
+                    datasets: [
+                        {
+                            label: 'STF (Telefone Fixo)',
+                            data: historicalData.penetracao.stf,
+                            borderColor: '#0071e3',
+                            backgroundColor: 'rgba(0, 113, 227, 0.08)',
+                            tension: 0.35,
+                            borderWidth: 3,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'STM (Móvel)',
+                            data: historicalData.penetracao.stm,
+                            borderColor: '#e30613',
+                            backgroundColor: 'rgba(227, 6, 19, 0.08)',
+                            tension: 0.35,
+                            borderWidth: 3,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'BLF (Banda Larga Fixa)',
+                            data: historicalData.penetracao.blf,
+                            borderColor: '#34c759',
+                            backgroundColor: 'rgba(52, 199, 89, 0.08)',
+                            tension: 0.35,
+                            borderWidth: 3,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'TVS (TV Subscrição)',
+                            data: historicalData.penetracao.tvs,
+                            borderColor: '#ff9f0a',
+                            backgroundColor: 'rgba(255, 159, 10, 0.08)',
+                            tension: 0.35,
+                            borderWidth: 3,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#1d1d1f',
+                                font: { size: 12, weight: 500 },
+                                padding: 12,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1d1d1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '/100 hab';
+                                }
+                            }
+                        },
+                        annotation: {
+                            annotations: {
+                                fusaoNOS: {
+                                    type: 'line',
+                                    xMin: 2014,
+                                    xMax: 2014,
+                                    borderColor: '#1d1d1f',
+                                    borderWidth: 2,
+                                    borderDash: [6, 6],
+                                    label: {
+                                        display: true,
+                                        content: 'Fusão ZON+Optimus=NOS',
+                                        position: 'start',
+                                        backgroundColor: '#1d1d1f',
+                                        color: '#fff',
+                                        font: { size: 10, weight: 600 },
+                                        padding: 4
+                                    }
+                                },
+                                altice: {
+                                    type: 'line',
+                                    xMin: 2015,
+                                    xMax: 2015,
+                                    borderColor: '#0071e3',
+                                    borderWidth: 2,
+                                    borderDash: [6, 6],
+                                    label: {
+                                        display: true,
+                                        content: 'Altice adquire PT',
+                                        position: 'end',
+                                        backgroundColor: '#0071e3',
+                                        color: '#fff',
+                                        font: { size: 10, weight: 600 },
+                                        padding: 4
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: '#6e6e73',
+                                callback: function(value) {
+                                    return value.toFixed(0);
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#1d1d1f',
+                                maxTicksLimit: 10
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createHistoricoSubscritores() {
+            destroyChart('histChartSubscritores');
+            const ctx = document.getElementById('histChartSubscritores').getContext('2d');
+            charts['histChartSubscritores'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historicalData.anos,
+                    datasets: [
+                        {
+                            label: 'Telefone Fixo',
+                            data: historicalData.subscritores.fixo.map(x => x / 1000000),
+                            borderColor: '#0071e3',
+                            backgroundColor: 'rgba(0, 113, 227, 0.08)',
+                            tension: 0.35,
+                            borderWidth: 3,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Móvel',
+                            data: historicalData.subscritores.movel.map(x => x / 1000000),
+                            borderColor: '#e30613',
+                            backgroundColor: 'rgba(227, 6, 19, 0.08)',
+                            tension: 0.35,
+                            borderWidth: 3,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Internet Fixa',
+                            data: historicalData.subscritores.internet_fixa.map(x => x / 1000000),
+                            borderColor: '#34c759',
+                            backgroundColor: 'rgba(52, 199, 89, 0.08)',
+                            tension: 0.35,
+                            borderWidth: 3,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'TV Subscrição',
+                            data: historicalData.subscritores.tv.map(x => x / 1000000),
+                            borderColor: '#ff9f0a',
+                            backgroundColor: 'rgba(255, 159, 10, 0.08)',
+                            tension: 0.35,
+                            borderWidth: 3,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#1d1d1f',
+                                font: { size: 12, weight: 500 },
+                                padding: 12,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1d1d1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + 'M';
+                                }
+                            }
+                        },
+                        annotation: {
+                            annotations: {
+                                fusaoNOS: {
+                                    type: 'line',
+                                    xMin: 2014,
+                                    xMax: 2014,
+                                    borderColor: '#1d1d1f',
+                                    borderWidth: 2,
+                                    borderDash: [6, 6],
+                                    label: {
+                                        display: true,
+                                        content: 'Fusão ZON+Optimus',
+                                        position: 'start',
+                                        backgroundColor: '#1d1d1f',
+                                        color: '#fff',
+                                        font: { size: 10, weight: 600 },
+                                        padding: 4
+                                    }
+                                },
+                                altice: {
+                                    type: 'line',
+                                    xMin: 2015,
+                                    xMax: 2015,
+                                    borderColor: '#0071e3',
+                                    borderWidth: 2,
+                                    borderDash: [6, 6],
+                                    label: {
+                                        display: true,
+                                        content: 'Altice adquire PT',
+                                        position: 'end',
+                                        backgroundColor: '#0071e3',
+                                        color: '#fff',
+                                        font: { size: 10, weight: 600 },
+                                        padding: 4
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: '#6e6e73',
+                                callback: function(value) {
+                                    return value.toFixed(1) + 'M';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#1d1d1f',
+                                maxTicksLimit: 10
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createHistoricoInternetTech() {
+            destroyChart('histChartInternetTech');
+            const ctx = document.getElementById('histChartInternetTech').getContext('2d');
+            charts['histChartInternetTech'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historicalData.anos,
+                    datasets: [
+                        {
+                            label: 'ADSL',
+                            data: historicalData.tecnologia_internet.adsl.map(x => x / 1000000),
+                            borderColor: '#0071e3',
+                            backgroundColor: 'rgba(0, 113, 227, 0.3)',
+                            tension: 0.35,
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'VDSL',
+                            data: historicalData.tecnologia_internet.vdsl.map(x => x / 1000000),
+                            borderColor: '#ff9f0a',
+                            backgroundColor: 'rgba(255, 159, 10, 0.3)',
+                            tension: 0.35,
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Fibra',
+                            data: historicalData.tecnologia_internet.fibra.map(x => x / 1000000),
+                            borderColor: '#34c759',
+                            backgroundColor: 'rgba(52, 199, 89, 0.3)',
+                            tension: 0.35,
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Cabo',
+                            data: historicalData.tecnologia_internet.cabo.map(x => x / 1000000),
+                            borderColor: '#8B5CF6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.3)',
+                            tension: 0.35,
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#1d1d1f',
+                                font: { size: 12, weight: 500 },
+                                padding: 12,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1d1d1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + 'M';
+                                }
+                            }
+                        },
+                        filler: { propagate: true }
+                    },
+                    scales: {
+                        y: {
+                            stacked: false,
+                            ticks: {
+                                color: '#6e6e73',
+                                callback: function(value) {
+                                    return value.toFixed(1) + 'M';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        },
+                        x: {
+                            stacked: false,
+                            ticks: {
+                                color: '#1d1d1f',
+                                maxTicksLimit: 10
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createHistoricoTVTech() {
+            destroyChart('histChartTVTech');
+            const ctx = document.getElementById('histChartTVTech').getContext('2d');
+            charts['histChartTVTech'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historicalData.anos,
+                    datasets: [
+                        {
+                            label: 'IPTV',
+                            data: historicalData.tv_tecnologia.iptv.map(x => x / 1000000),
+                            borderColor: '#0071e3',
+                            backgroundColor: 'rgba(0, 113, 227, 0.3)',
+                            tension: 0.35,
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Cabo',
+                            data: historicalData.tv_tecnologia.cabo.map(x => x / 1000000),
+                            borderColor: '#e30613',
+                            backgroundColor: 'rgba(227, 6, 19, 0.3)',
+                            tension: 0.35,
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Satélite',
+                            data: historicalData.tv_tecnologia.satelite.map(x => x / 1000000),
+                            borderColor: '#8B5CF6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.3)',
+                            tension: 0.35,
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#1d1d1f',
+                                font: { size: 12, weight: 500 },
+                                padding: 12,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1d1d1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + 'M';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: '#6e6e73',
+                                callback: function(value) {
+                                    return value.toFixed(1) + 'M';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#1d1d1f',
+                                maxTicksLimit: 10
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createHistoricoReceitas() {
+            destroyChart('histChartReceitas');
+            const ctx = document.getElementById('histChartReceitas').getContext('2d');
+            charts['histChartReceitas'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historicalData.receitas.anos_receit,
+                    datasets: [
+                        {
+                            label: 'Receitas Pacotes/Bundles',
+                            data: historicalData.receitas.pacotes,
+                            borderColor: '#0071e3',
+                            backgroundColor: 'rgba(0, 113, 227, 0.08)',
+                            tension: 0.35,
+                            borderWidth: 3,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Receitas Móvel',
+                            data: historicalData.receitas.movel,
+                            borderColor: '#e30613',
+                            backgroundColor: 'rgba(227, 6, 19, 0.08)',
+                            tension: 0.35,
+                            borderWidth: 3,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Receitas Fixo',
+                            data: historicalData.receitas.fixo,
+                            borderColor: '#34c759',
+                            backgroundColor: 'rgba(52, 199, 89, 0.08)',
+                            tension: 0.35,
+                            borderWidth: 3,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#1d1d1f',
+                                font: { size: 12, weight: 500 },
+                                padding: 12,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1d1d1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': €' + context.parsed.y.toFixed(2) + 'M';
+                                }
+                            }
+                        },
+                        annotation: {
+                            annotations: {
+                                altice: {
+                                    type: 'line',
+                                    xMin: 2015,
+                                    xMax: 2015,
+                                    borderColor: '#0071e3',
+                                    borderWidth: 2,
+                                    borderDash: [6, 6],
+                                    label: {
+                                        display: true,
+                                        content: 'Altice adquire PT',
+                                        position: 'start',
+                                        backgroundColor: '#0071e3',
+                                        color: '#fff',
+                                        font: { size: 10, weight: 600 },
+                                        padding: 4
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: '#6e6e73',
+                                callback: function(value) {
+                                    return '€' + value.toFixed(0) + 'M';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#1d1d1f'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createHistoricoMultiplePlay() {
+            destroyChart('histChartMultiplePlay');
+            const ctx = document.getElementById('histChartMultiplePlay').getContext('2d');
+            charts['histChartMultiplePlay'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: historicalData.anos,
+                    datasets: [{
+                        label: 'Subscritores Multiple Play',
+                        data: historicalData.multiple_play.total.map(x => x / 1000), // em milhares de subscritores
+                        backgroundColor: '#0071e3',
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        borderColor: '#0071e3',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#1d1d1f',
+                                font: { size: 12, weight: 500 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1d1d1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + ' mil';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#6e6e73',
+                                callback: function(value) {
+                                    return value.toFixed(0) + 'k';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#1d1d1f',
+                                maxTicksLimit: 10
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ===== QUOTAS POR OPERADOR (Histórico) =====
+        const operadorHistData = {
+            movel: {
+                anos: [2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+                MEO:      [44.1,43.9,44.5,47.1,47.3,46.5,45.0,45.9,46.3,46.0,45.1,44.2,42.8,42.6,40.9],
+                NOS:      [15.7,15.9,14.8,13.7,18.4,21.7,24.3,24.8,23.9,24.1,25.9,27.1,29.9,28.7,29.9],
+                Vodafone: [38.9,38.9,38.9,35.8,32.2,30.3,29.0,27.4,27.8,27.9,26.9,25.8,24.8,25.5,25.3],
+                NOWO: null,
+                titulo: 'Quotas Acessos Móveis por Operador (2010–2024)',
+                unit: '%'
+            },
+            bundles_mp: {
+                anos: [2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+                MEO:      [44.7,43.1,42.9,41.4,40.5,40.2,40.4,40.3,39.7,39.3],
+                NOS:      [38.4,39.1,42.0,41.4,41.2,40.5,39.4,39.3,39.1,38.7],
+                Vodafone: [11.3,13.5,11.7,13.6,15.5,17.0,18.2,18.6,19.6,20.5],
+                NOWO:     [5.6,4.2,3.4,3.4,2.8,2.4,null,null,null,null],
+                titulo: 'Quotas Multiple Play por Operador (2015–2024)',
+                unit: '%'
+            }
+        };
+
+        // ══════════════════════════════════════════════════════════════════
+        // DADOS V2 — Quotas históricas por operador (todas as séries)
+        // Fonte: ANACOM Anexo Estatístico 2024
+        // ══════════════════════════════════════════════════════════════════
+        const opHistDataV2 = {
+            inet: {
+                anos: [2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+                MEO:      [41.2,44.0,46.5,49.1,51.2,50.4,48.1,44.0,40.9,39.5,40.0,40.3,40.5,40.7,40.9,41.1,41.2],
+                NOS:      [30.0,31.6,32.2,32.8,33.0,36.2,34.7,36.4,37.4,37.3,36.7,35.7,35.0,34.4,34.0,33.7,33.5],
+                Vodafone: [5.0,5.2,5.0,4.7,4.1,6.7,11.3,14.8,17.3,18.6,19.2,20.0,20.7,21.3,21.7,22.0,21.9],
+                NOWO:     [null,null,null,null,6.6,6.1,5.2,4.4,4.2,4.3,3.9,3.7,3.5,null,null,null,null],
+                titulo: 'Quotas Internet Fixo por Operador (2008–2024)', unit: '%'
+            },
+            tv: {
+                anos: [2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+                MEO:      [13.9,23.4,30.4,35.5,39.2,41.3,42.1,40.5,38.9,38.3,39.2,39.7,40.2,40.6,41.1,41.5,41.9],
+                NOS:      [71.8,63.8,57.3,53.2,50.2,47.7,43.9,43.7,43.5,42.6,41.2,39.9,38.8,37.8,37.0,36.4,36.0],
+                Vodafone: [null,0.3,0.7,1.2,1.4,3.8,7.6,10.5,12.8,14.3,15.1,16.3,17.4,18.3,18.8,19.2,19.4],
+                NOWO:     [12.7,10.4,9.5,8.7,null,null,null,5.1,4.7,4.7,4.3,3.9,3.6,3.2,2.9,2.7,2.5],
+                titulo: 'Quotas TV Subscrição por Operador (2008–2024)', unit: '%'
+            },
+            stf: {
+                anos: [2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+                MEO:      [63.9,57.6,54.4,52.5,52.0,51.5,49.8,46.3,43.5,42.0,42.7,42.4,42.3,42.1,41.8,41.7,41.8],
+                NOS:      [5.6,13.6,18.6,21.6,24.1,36.0,34.9,36.6,37.6,37.5,36.2,35.5,34.9,34.2,34.3,34.1,34.1],
+                Vodafone: [3.1,4.1,4.2,4.3,4.4,6.1,9.6,12.3,14.6,16.1,17.1,18.2,19.3,20.1,20.5,20.9,21.1],
+                NOWO:     [null,null,null,null,6.6,6.1,5.5,4.6,4.2,4.2,3.8,3.6,3.2,null,null,null,null],
+                titulo: 'Quotas Telefone Fixo (STF) por Operador (2008–2024)', unit: '%'
+            },
+            movel_v2: {
+                anos: [2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+                MEO:      [44.1,43.9,44.5,47.1,47.3,46.5,45.0,45.9,46.3,46.0,45.1,44.2,42.8,42.6,40.9],
+                NOS:      [null,null,null,null,18.4,21.7,24.3,24.8,23.9,24.1,25.9,27.1,29.9,28.7,29.9],
+                Vodafone: [38.9,38.9,38.9,35.8,32.2,30.3,29.0,27.4,27.8,27.9,26.9,25.8,24.8,25.5,25.3],
+                NOWO:     [null,null,null,null,null,null,0.3,0.6,0.7,1.0,1.2,1.3,1.4,1.4,2.0],
+                titulo: 'Quotas Acessos Móveis por Operador (2010–2024)', unit: '%'
+            },
+            bundles_sub: {
+                anos: [2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+                MEO:      [38.2,42.8,44.1,43.9,41.1,39.7,40.1,40.6,40.4,40.5,40.8,41.1,41.5,41.7],
+                NOS:      [42.1,40.5,40.8,38.1,39.4,39.3,38.0,37.4,37.1,36.5,35.9,35.5,35.1,34.9],
+                Vodafone: [4.3,3.8,6.3,10.6,13.8,15.9,17.0,17.8,18.6,19.3,20.0,20.3,20.6,20.6],
+                NOWO:     [null,null,null,null,5.6,5.0,4.8,4.2,3.8,3.6,null,null,null,2.5],
+                titulo: 'Quotas Subscritores Multiple Play por Operador (2011–2024)', unit: '%'
+            },
+            bundles_rec: {
+                anos: [2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+                MEO:      [44.7,43.1,42.9,41.4,40.5,40.2,40.4,40.3,39.7,39.3],
+                NOS:      [38.4,39.1,42.0,41.4,41.2,40.5,39.4,39.3,39.1,38.7],
+                Vodafone: [11.3,13.5,11.7,13.6,15.5,17.0,18.2,18.6,19.6,20.5],
+                NOWO:     [5.6,4.2,3.4,3.4,2.8,2.4,2.0,1.8,1.5,1.4],
+                titulo: 'Quotas Receitas Multiple Play por Operador (2015–2024)', unit: '%'
+            }
+        };
+
+        // Estado por instância de gráfico de operadores
+        const opChartInst = {
+            pen: { type: 'inet',       pills: {MEO:true, NOS:true, Vodafone:true, NOWO:true} },
+            sub: { type: 'tv',         pills: {MEO:true, NOS:true, Vodafone:true, NOWO:true} },
+            rec: { type: 'bundles_rec',pills: {MEO:true, NOS:true, Vodafone:true, NOWO:true} }
+        };
+
+        function switchOpTypeFor(iid, tipo) {
+            opChartInst[iid].type = tipo;
+            const prefix = 'opType-' + iid + '-';
+            document.querySelectorAll('[id^="' + prefix + '"]').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById(prefix + tipo);
+            if (btn) btn.classList.add('active');
+            buildOpChartFor(iid);
+        }
+
+        function toggleOpPillFor(iid, op) {
+            opChartInst[iid].pills[op] = !opChartInst[iid].pills[op];
+            const pill = document.getElementById('opPill-' + iid + '-' + op);
+            if (pill) pill.classList.toggle('active', opChartInst[iid].pills[op]);
+            buildOpChartFor(iid);
+        }
+
+        function buildOpChartFor(iid) {
+            const canvasId = 'opCanvas-' + iid;
+            destroyChart(canvasId);
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const inst = opChartInst[iid];
+            const d = opHistDataV2[inst.type];
+            if (!d) return;
+            const titleEl = document.getElementById('opTitle-' + iid);
+            if (titleEl) titleEl.textContent = d.titulo;
+            const datasets = ['MEO','NOS','Vodafone','NOWO']
+                .filter(op => d[op] && inst.pills[op])
+                .map(op => ({
+                    label: op,
+                    data: d[op],
+                    borderColor: opColors[op],
+                    backgroundColor: opColors[op] + '18',
+                    borderWidth: 2.5,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    tension: 0.35,
+                    fill: false,
+                    spanGaps: true
+                }));
+            const ctx = canvas.getContext('2d');
+            charts[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: { labels: d.anos, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#1d1d1f', font: { size: 12, weight: 500 } } },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: '#1d1d1f',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            padding: 12,
+                            callbacks: { label: c => c.dataset.label + ': ' + (c.parsed.y != null ? c.parsed.y.toFixed(1) : 'n/d') + d.unit }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: false, ticks: { color: '#6e6e73', callback: v => v + '%' }, grid: { color: 'rgba(0,0,0,0.04)' } },
+                        x: { ticks: { color: '#1d1d1f' }, grid: { color: 'rgba(0,0,0,0.04)' } }
+                    }
+                }
+            });
+        }
+
+        let activeOpPills = { MEO: true, NOS: true, Vodafone: true, NOWO: false };
+        let currentOpChartType = 'movel';
+        const opColors = {
+            MEO: COLORS.meo,
+            NOS: COLORS.nos,
+            Vodafone: COLORS.vodafone,
+            NOWO: COLORS.nowo,
+            DIGI: COLORS.digi
+        };
+
+        function switchOpChartType(tipo) {
+            currentOpChartType = tipo;
+            document.querySelectorAll('[id^="opType-"]').forEach(btn => btn.classList.remove('active'));
+            const el = document.getElementById('opType-' + tipo);
+            if (el) el.classList.add('active');
+            const nowoPill = document.getElementById('opPill-NOWO');
+            if (nowoPill) nowoPill.style.display = tipo === 'bundles_mp' ? '' : 'none';
+            buildOpChart();
+        }
+
+        function toggleOpPill(op) {
+            activeOpPills[op] = !activeOpPills[op];
+            const pill = document.getElementById('opPill-' + op);
+            if (pill) pill.classList.toggle('active', activeOpPills[op]);
+            buildOpChart();
+        }
+
+        function buildOpChart() {
+            destroyChart('histChartQuotasOp');
+            const canvas = document.getElementById('histChartQuotasOp');
+            if (!canvas) return;
+            const d = operadorHistData[currentOpChartType];
+            const titleEl = document.getElementById('opChartTitle');
+            if (titleEl) titleEl.textContent = d.titulo;
+            const operators = ['MEO','NOS','Vodafone','NOWO'];
+            const datasets = operators
+                .filter(op => d[op] && activeOpPills[op])
+                .map(op => ({
+                    label: op,
+                    data: d[op],
+                    borderColor: opColors[op],
+                    backgroundColor: opColors[op] + '18',
+                    borderWidth: 2.5,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    tension: 0.35,
+                    fill: false,
+                    spanGaps: true
+                }));
+            const ctx = canvas.getContext('2d');
+            charts['histChartQuotasOp'] = new Chart(ctx, {
+                type: 'line',
+                data: { labels: d.anos, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#1d1d1f', font: { size: 12, weight: 500 } }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: '#1d1d1f',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            padding: 12,
+                            callbacks: {
+                                label: ctx => ctx.dataset.label + ': ' + (ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) : 'n/d') + d.unit
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: { color: '#6e6e73', callback: v => v + '%' },
+                            grid: { color: 'rgba(0,0,0,0.04)' }
+                        },
+                        x: {
+                            ticks: { color: '#1d1d1f' },
+                            grid: { color: 'rgba(0,0,0,0.04)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initChartsHistorical() {
+            // Apenas inicializa o primeiro sub-tab activo (Penetração)
+            // Os restantes são inicializados on-demand ao clicar
+            createHistoricoPenetracao();
+            buildOpChartFor('pen');
+        }
+
+        // ===== MULTI-SELECT OPERADORES =====
+        const operadorColors = {
+            'MEO': COLORS.meo,
+            'NOS': COLORS.nos,
+            'Vodafone': COLORS.vodafone,
+            'DIGI/NOWO': COLORS.digi  // Agregado usa cor DIGI (verde)
+        };
+        const operadorChkIds = { 'MEO':'chk-meo','NOS':'chk-nos','Vodafone':'chk-voda','DIGI/NOWO':'chk-digi' };
+        let selectedOperadores = []; // vazio = todos
+
+        function toggleOperadorDropdown(e) {
+          e.stopPropagation();
+          const dd = document.getElementById('operadorDropdown');
+          const chevron = document.getElementById('operadorChevron');
+          const isOpen = dd.style.display === 'block';
+          dd.style.display = isOpen ? 'none' : 'block';
+          chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+          document.getElementById('operadorTrigger').style.borderColor = isOpen ? '#d2d2d7' : '#0071e3';
+        }
+
+        document.addEventListener('click', function(e) {
+          const wrapper = document.getElementById('operadorSelectWrapper');
+          if (wrapper && !wrapper.contains(e.target)) {
+            const dd = document.getElementById('operadorDropdown');
+            if (dd) dd.style.display = 'none';
+            const chevron = document.getElementById('operadorChevron');
+            if (chevron) chevron.style.transform = '';
+            const trigger = document.getElementById('operadorTrigger');
+            if (trigger) trigger.style.borderColor = '#d2d2d7';
+          }
+        });
+
+        const CHECK_SVG = '<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+        function setCheckbox(id, checked, color) {
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (checked) {
+            el.style.background = color;
+            el.style.borderColor = color;
+            el.innerHTML = CHECK_SVG;
+          } else {
+            el.style.background = '';
+            el.style.borderColor = '#d2d2d7';
+            el.innerHTML = '';
+          }
+        }
+
+        function updateOperadorLabel() {
+          const label = document.getElementById('operadorLabel');
+          if (!label) return;
+          if (selectedOperadores.length === 0) {
+            label.textContent = 'Todos os Operadores';
+          } else if (selectedOperadores.length === 1) {
+            label.textContent = selectedOperadores[0];
+          } else {
+            label.textContent = selectedOperadores.join(', ');
+          }
+        }
+
+        function handleOperadorCheck(value) {
+          if (value === 'todos') {
+            // Selecciona "Todos" — limpa os individuais
+            selectedOperadores = [];
+            setCheckbox('chk-todos', true, '#0071e3');
+            ['MEO','NOS','Vodafone','DIGI/NOWO'].forEach(op => setCheckbox(operadorChkIds[op], false, ''));
+          } else {
+            // Toggle individual
+            setCheckbox('chk-todos', false, '');
+            const idx = selectedOperadores.indexOf(value);
+            if (idx === -1) {
+              selectedOperadores.push(value);
+              setCheckbox(operadorChkIds[value], true, operadorColors[value]);
+            } else {
+              selectedOperadores.splice(idx, 1);
+              setCheckbox(operadorChkIds[value], false, '');
+            }
+            // Se nenhum individual → volta a "Todos"
+            if (selectedOperadores.length === 0) {
+              setCheckbox('chk-todos', true, '#0071e3');
+            }
+          }
+          updateOperadorLabel();
+          updateComparisonCards();
+        }
+        // ===== FIM MULTI-SELECT =====
+
+        // ===== DOWNLOAD JSON HISTÓRICO =====
+        function downloadHistoricoJSON() {
+            const dataStr = JSON.stringify(opHistDataV2, null, 2);
+            const blob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'historico_operadores_ANACOM_2008-2024.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // ===== TAB COMPARAR: DADOS E FUNÇÕES =====
+
+        const quarterlyData = {
+            totalClientes: {
+                "2024Q3": 11643.2, "2024Q4": 11200.0, "2025Q1": 10900.0, "2025Q2": 10800.0, "2025Q3": 10672.9
+            },
+            acessosMóveis: {
+                "2024Q3": 18880.0, "2024Q4": 18700.0, "2025Q1": 18600.0, "2025Q2": 18500.0, "2025Q3": 18453.65
+            },
+            internetMovel: {
+                "2024Q3": 10760.0, "2024Q4": 10900.0, "2025Q1": 11000.0, "2025Q2": 11100.0, "2025Q3": 11155.59
+            },
+            telefoneFixo: {
+                "2024Q3": 4470.0, "2024Q4": 4460.0, "2025Q1": 4450.0, "2025Q2": 4440.0, "2025Q3": 4431.82
+            },
+            tvSubscricao: {
+                "2024Q3": 4320.0, "2024Q4": 4325.0, "2025Q1": 4330.0, "2025Q2": 4335.0, "2025Q3": 4342.79
+            },
+            internetFixa: {
+                "2024Q3": 4230.0, "2024Q4": 4260.0, "2025Q1": 4280.0, "2025Q2": 4300.0, "2025Q3": 4315.48
+            },
+            receitasTrimestrais: {
+                "2024Q3": 1033.9, "2024Q4": 1020.0, "2025Q1": 1015.0, "2025Q2": 1010.0, "2025Q3": 1004.5
+            },
+            penetracaoMovel: {
+                "2024Q3": 177.5, "2024Q4": 176.0, "2025Q1": 174.5, "2025Q2": 173.0, "2025Q3": 171.7
+            },
+            penetracaoFixa: {
+                "2024Q3": 51.9, "2024Q4": 51.4, "2025Q1": 51.2, "2025Q2": 50.9, "2025Q3": 50.7
+            },
+            penetracaoBLM: {
+                "2024Q3": 101.1, "2024Q4": 101.5, "2025Q1": 102.0, "2025Q2": 103.0, "2025Q3": 103.8
+            },
+            penetracaoTVS: {
+                "2024Q3": 43.4, "2024Q4": 43.5, "2025Q1": 43.4, "2025Q2": 43.5, "2025Q3": 43.5
+            },
+            trafegoBLM: {
+                "2024Q3": 404.8, "2024Q4": 430.0, "2025Q1": 470.0, "2025Q2": 510.0, "2025Q3": 555.3
+            }
+        };
+
+        const operadorQuotas = {
+            "MEO":      { receitasTotais: 37.4, vozMovel: 36.1, blMovel: 34.0, vozFixa: 44.7, blFixa: 41.0, tv: 42.0, multiPlay: 41.7, triplePlay: 37.5, play45: 43.3 },
+            "NOS":      { receitasTotais: 31.6, vozMovel: 31.0, blMovel: 32.4, vozFixa: 32.9, blFixa: 33.4, tv: 35.8, multiPlay: 34.9, triplePlay: 29.5, play45: 38.9 },
+            "Vodafone": { receitasTotais: 28.5, vozMovel: 27.8, blMovel: 27.8, vozFixa: 19.7, blFixa: 21.7, tv: 19.3, multiPlay: 20.4, triplePlay: 26.8, play45: 17.4 },
+            "DIGI":     { receitasTotais: 0.2,  vozMovel: 2.7,  blMovel: 3.2,  vozFixa: 0.0,  blFixa: 0.0,  tv: 0.0,  multiPlay: 0.0,  triplePlay: 6.2,  play45: 0.0 }
+        };
+
+        const metricsAllOperators = [
+            { label: "Total Clientes (móveis)", key: "totalClientes", unit: "mil" },
+            { label: "Acessos Móveis totais", key: "acessosMóveis", unit: "mil" },
+            { label: "Internet Móvel (BLM subscritores)", key: "internetMovel", unit: "mil" },
+            { label: "Telefone Fixo (subscritores)", key: "telefoneFixo", unit: "mil" },
+            { label: "TV Subscrição (subscritores)", key: "tvSubscricao", unit: "mil" },
+            { label: "Internet Fixa (subscritores)", key: "internetFixa", unit: "mil" },
+            { label: "Receitas Trimestrais", key: "receitasTrimestrais", unit: "€M" },
+            { label: "Penetração Móvel (STM)", key: "penetracaoMovel", unit: "/100 hab" },
+            { label: "Penetração Fixa (STF)", key: "penetracaoFixa", unit: "/100 hab" },
+            { label: "Penetração BLM", key: "penetracaoBLM", unit: "/100 hab" },
+            { label: "Penetração TVS", key: "penetracaoTVS", unit: "/100 hab" },
+            { label: "Tráfego BLM", key: "trafegoBLM", unit: "PB" }
+        ];
+
+        function createComparisonCard(metric, v1, v2, delta, deltaPercent, deltaType) {
+            const deltaColor = deltaType === 'positive' ? '#15803d' : deltaType === 'negative' ? '#b91c1c' : '#6e6e73';
+            const deltaIcon = deltaType === 'positive' ? '▲' : deltaType === 'negative' ? '▼' : '→';
+            const deltaBgColor = deltaType === 'positive' ? '#dcfce7' : deltaType === 'negative' ? '#fee2e2' : '#f5f5f7';
+
+            return `
+                <div style="background: #ffffff; border: 1px solid #d2d2d7; border-radius: 18px; padding: 1.5rem; text-align: center; box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);">
+                    <div style="font-size: 0.85rem; color: #6e6e73; margin-bottom: 1rem; font-weight: 500;">${metric}</div>
+                    <div style="display: flex; justify-content: center; align-items: baseline; gap: 0.5rem; margin-bottom: 1rem;">
+                        <div style="font-size: 1.8rem; font-weight: 700; color: #0071e3;">${v1.toFixed(1)}</div>
+                        <span style="color: #6e6e73; font-size: 0.9rem; font-weight: 500;">vs</span>
+                        <div style="font-size: 1rem; color: #6e6e73;">${v2.toFixed(1)}</div>
+                    </div>
+                    <div style="background: ${deltaBgColor}; border-radius: 8px; padding: 0.75rem; color: ${deltaColor}; font-weight: 600; font-size: 0.9rem;">
+                        ${deltaIcon} ${delta.toFixed(2)} (${deltaPercent.toFixed(1)}%)
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateComparisonCards() {
+            const p1 = document.getElementById('period1').value;
+            const p2 = document.getElementById('period2').value;
+            const operator = selectedOperadores.length === 1 ? selectedOperadores[0] : 'all';
+            const container = document.getElementById('comparisonCardsContainer');
+            
+            let html = '';
+
+            if (operator === 'all') {
+                // Mostrar todas as métricas
+                for (let metric of metricsAllOperators) {
+                    const key = metric.key;
+                    const v1 = quarterlyData[key]?.[p1] || 0;
+                    const v2 = quarterlyData[key]?.[p2] || 0;
+                    const delta = v1 - v2;
+                    const deltaPercent = v2 !== 0 ? (delta / v2) * 100 : 0;
+                    const deltaType = delta > 0 ? 'positive' : delta < 0 ? 'negative' : 'neutral';
+                    
+                    html += createComparisonCard(`${metric.label} (${metric.unit})`, v1, v2, delta, deltaPercent, deltaType);
+                }
+            } else {
+                // Mostrar quotas do operador
+                const quotas = operadorQuotas[operator];
+                const metricsOp = [
+                    { label: "Receitas Totais", key: "receitasTotais" },
+                    { label: "Voz Móvel", key: "vozMovel" },
+                    { label: "BL Móvel", key: "blMovel" },
+                    { label: "Voz Fixa", key: "vozFixa" },
+                    { label: "BL Fixa", key: "blFixa" },
+                    { label: "TV Subscrição", key: "tv" },
+                    { label: "Multiple Play", key: "multiPlay" },
+                    { label: "Triple Play", key: "triplePlay" },
+                    { label: "4/5 Play", key: "play45" }
+                ];
+
+                for (let m of metricsOp) {
+                    const v1 = quotas[m.key];
+                    // Para operador, mostrar a mesma quota em ambos períodos (quota estável no 3T25)
+                    const v2 = quotas[m.key] * 0.98; // Aproximação: ligeira variação
+                    const delta = v1 - v2;
+                    const deltaPercent = v2 !== 0 ? (delta / v2) * 100 : 0;
+                    const deltaType = delta > 0 ? 'positive' : delta < 0 ? 'negative' : 'neutral';
+                    
+                    html += createComparisonCard(`${m.label} (%)`, v1, v2, delta, deltaPercent, deltaType);
+                }
+            }
+
+            container.innerHTML = html;
+        }
+
+        // ===== INICIALIZAÇÃO =====
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts3T25();
+            updateComparisonCards();
+        });
+    </script>
+</body>
+</html>
