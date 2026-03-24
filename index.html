@@ -821,10 +821,10 @@
     <div class="container">
         <!-- Main Tabs -->
         <div class="main-tabs">
-            <button class="main-tab-btn active" onclick="switchMainTab('tab-3t25')">📊 3T 2025</button>
-            <button class="main-tab-btn" onclick="switchMainTab('tab-compare')">🔍 Comparar</button>
-            <button class="main-tab-btn" onclick="switchMainTab('tab-historical')">📈 Histórico</button>
-            <button class="main-tab-btn" onclick="switchMainTab('tab-financial')">💰 Financeiro</button>
+            <button class="main-tab-btn active" onclick="switchMainTab('tab-3t25')" data-i18n="tabs.main.q3_2025">📊 3T 2025</button>
+            <button class="main-tab-btn" onclick="switchMainTab('tab-compare')" data-i18n="tabs.main.compare">🔍 Comparar</button>
+            <button class="main-tab-btn" onclick="switchMainTab('tab-historical')" data-i18n="tabs.main.historical">📈 Histórico</button>
+            <button class="main-tab-btn" onclick="switchMainTab('tab-financial')" data-i18n="tabs.main.financial">💰 Financeiro</button>
         </div>
 
         <!-- TAB 1: 3T 2025 -->
@@ -2464,7 +2464,7 @@
         // ============================================
         // EXISTING DASHBOARD FUNCTIONS
         // ============================================
-    <script>
+
         // ===== EXPORTAÇÃO EXCEL =====
         function exportToExcel(filename, labels, datasets) {
             const header = ['Período', ...datasets.map(d => d.label)];
