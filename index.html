@@ -618,6 +618,7 @@
             <button class="main-tab-btn active" onclick="switchMainTab('tab-3t25')">📊 3T 2025</button>
             <button class="main-tab-btn" onclick="switchMainTab('tab-compare')">🔍 Comparar</button>
             <button class="main-tab-btn" onclick="switchMainTab('tab-historical')">📈 Histórico</button>
+            <button class="main-tab-btn" onclick="switchMainTab('tab-financial')">💰 Financeiro</button>
         </div>
 
         <!-- TAB 1: 3T 2025 -->
@@ -1483,8 +1484,682 @@
             </div>
         </div>
 
+        <!-- TAB 4: FINANCEIRO -->
+        <div id="tab-financial" class="tab-content">
+            <div class="card">
+                <h2>💰 Dados Financeiros dos Operadores</h2>
+                <p style="font-size: 0.9rem; color: #6e6e73; margin-bottom: 1.5rem; font-weight: 500;">
+                    Análise financeira trimestral dos principais operadores de telecomunicações em Portugal<br>
+                    <span style="font-size: 0.85rem;">Fonte: Relatórios públicos dos operadores e estimativas analíticas</span>
+                </p>
+                
+                <!-- Sub-tabs Financeiro -->
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn active" onclick="switchSubTab('fin-receitas', this)">📊 Receitas</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('fin-rentabilidade', this)">💹 Rentabilidade</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('fin-mix', this)">🎯 Mix B2C/B2B</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('fin-insights', this)">💡 Insights</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('fin-tabela', this)">📋 Tabela Dinâmica</button>
+                </div>
+
+                <!-- SUB-TAB 1: Receitas -->
+                <div id="fin-receitas" class="sub-tab-content active">
+                    
+                    <!-- Filtro Global: Tipo de Receita -->
+                    <div style="background: linear-gradient(135deg, #f5f5f7 0%, #e8e8ed 100%); border: 1px solid #d2d2d7; border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <span style="font-size: 0.9rem; font-weight: 600; color: #1d1d1f;">📊 Tipo de Receita:</span>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="sub-tab-btn active" id="finRevTypeTelco" onclick="setFinRevenueType('telco')" style="padding: 0.5rem 1rem; font-size: 0.85rem;">📡 Apenas Telco</button>
+                                    <button class="sub-tab-btn" id="finRevTypeTotal" onclick="setFinRevenueType('total')" style="padding: 0.5rem 1rem; font-size: 0.85rem;">💼 Total (Telco + Outros)</button>
+                                </div>
+                            </div>
+                            <div style="font-size: 0.75rem; color: #6e6e73; font-style: italic;">
+                                <span id="finRevTypeDesc">Receitas de serviços de telecomunicações (excluindo equipamentos e outros)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Slicers Temporais MELHORADOS -->
+                    <div style="background: #ffffff; border: 1px solid #d2d2d7; border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
+                            <!-- Agregação Temporal -->
+                            <div>
+                                <label style="display: block; font-size: 0.75rem; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; font-weight: 600;">Agregação</label>
+                                <select id="finAggregation" onchange="updateFinancialCharts()" style="width: 100%; padding: 0.65rem; background: #f5f5f7; color: #1d1d1f; border: 1px solid #d2d2d7; border-radius: 8px; font-weight: 500; font-size: 0.9rem; cursor: pointer;">
+                                    <option value="quarter" selected>Por Quarter</option>
+                                    <option value="cy">Por Ano (CY)</option>
+                                </select>
+                            </div>
+                            <!-- Período Inicial -->
+                            <div>
+                                <label style="display: block; font-size: 0.75rem; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; font-weight: 600;">Período Inicial</label>
+                                <select id="finPeriodStart" onchange="updateFinancialCharts()" style="width: 100%; padding: 0.65rem; background: #f5f5f7; color: #1d1d1f; border: 1px solid #d2d2d7; border-radius: 8px; font-weight: 500; font-size: 0.9rem; cursor: pointer;">
+                                    <option value="0">CYQ1'24</option>
+                                    <option value="1">CYQ2'24</option>
+                                    <option value="2">CYQ3'24</option>
+                                    <option value="3">CYQ4'24</option>
+                                    <option value="4">CYQ1'25</option>
+                                    <option value="5">CYQ2'25</option>
+                                    <option value="6">CYQ3'25</option>
+                                </select>
+                            </div>
+                            <!-- Período Final -->
+                            <div>
+                                <label style="display: block; font-size: 0.75rem; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; font-weight: 600;">Período Final</label>
+                                <select id="finPeriodEnd" onchange="updateFinancialCharts()" style="width: 100%; padding: 0.65rem; background: #f5f5f7; color: #1d1d1f; border: 1px solid #d2d2d7; border-radius: 8px; font-weight: 500; font-size: 0.9rem; cursor: pointer;">
+                                    <option value="0">CYQ1'24</option>
+                                    <option value="1">CYQ2'24</option>
+                                    <option value="2">CYQ3'24</option>
+                                    <option value="3">CYQ4'24</option>
+                                    <option value="4">CYQ1'25</option>
+                                    <option value="5">CYQ2'25</option>
+                                    <option value="6" selected>CYQ3'25</option>
+                                </select>
+                            </div>
+                            <!-- Botões Rápidos -->
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button onclick="setFinPeriod(0, 6)" style="padding: 0.65rem 1rem; background: #e8e8ed; border: none; color: #1d1d1f; font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 8px; transition: all 0.2s; white-space: nowrap;">Todos</button>
+                                <button onclick="setFinPeriod(3, 6)" style="padding: 0.65rem 1rem; background: #e8e8ed; border: none; color: #1d1d1f; font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 8px; transition: all 0.2s; white-space: nowrap;">2025</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico 1: Evolução de Receitas Totais -->
+                    <div style="background: #ffffff; border-radius: 18px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);">
+                        <div class="chart-header">
+                            <div>
+                                <h3 style="margin: 0 0 0.5rem; font-size: 1.1rem; font-weight: 600; color: #1d1d1f;">Evolução de Receitas Totais por Operador</h3>
+                                <p style="margin: 0; font-size: 0.85rem; color: #6e6e73;">Receitas trimestrais em milhões de euros (€M)</p>
+                            </div>
+                            <button class="chart-export-btn" onclick="exportFinancialChart('finChartRevTotal', 'Receitas_Totais_Operadores')">⬇ Excel</button>
+                        </div>
+                        <div style="position: relative; height: 350px; margin-top: 1.5rem;">
+                            <canvas id="finChartRevTotal"></canvas>
+                        </div>
+                        <!-- Badges de Fonte -->
+                        <div style="display: flex; gap: 1rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #f0f0f0; flex-wrap: wrap; justify-content: center;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="display: inline-block; padding: 0.25rem 0.65rem; background: #dcfce7; color: #15803d; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">✓ CONFIRMADO</span>
+                                <span style="font-size: 0.8rem; color: #6e6e73;">MEO, NOS</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="display: inline-block; padding: 0.25rem 0.65rem; background: #fff3cd; color: #856404; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">≈ ESTIMADO</span>
+                                <span style="font-size: 0.8rem; color: #6e6e73;">Vodafone</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico 2: Receitas B2C vs B2B (REDESENHADO) -->
+                    <div style="background: #ffffff; border-radius: 18px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);">
+                        <div class="chart-header" style="margin-bottom: 1.5rem;">
+                            <div>
+                                <h3 style="margin: 0 0 0.5rem; font-size: 1.1rem; font-weight: 600; color: #1d1d1f;">Distribuição de Receitas: B2C vs B2B</h3>
+                                <p style="margin: 0; font-size: 0.85rem; color: #6e6e73;">Análise por segmento de cliente (€M)</p>
+                            </div>
+                            <button class="chart-export-btn" onclick="exportFinancialChart('finChartB2CB2B', 'Receitas_B2C_B2B')">⬇ Excel</button>
+                        </div>
+                        
+                        <!-- Filtros: Operador + Agregação -->
+                        <div style="display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;">
+                            <!-- Filtro de Operador -->
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                                <span style="font-size: 0.85rem; color: #6e6e73; font-weight: 600;">Operador:</span>
+                                <button class="op-pill active" id="finOpAll" style="--op-color:#0071e3;" onclick="setFinOperator('all')">Todos</button>
+                                <button class="op-pill" id="finOpMEO" style="--op-color:#0071e3;" onclick="setFinOperator('MEO')">● MEO</button>
+                                <button class="op-pill" id="finOpNOS" style="--op-color:#1d1d1f;" onclick="setFinOperator('NOS')">● NOS</button>
+                                <button class="op-pill" id="finOpVoda" style="--op-color:#e30613;" onclick="setFinOperator('Vodafone')">● Vodafone</button>
+                            </div>
+                            
+                            <!-- Agregação B2C/B2B -->
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <span style="font-size: 0.85rem; color: #6e6e73; font-weight: 600;">Visualizar:</span>
+                                <button class="sub-tab-btn active" id="finB2BAggQuarter" onclick="setFinB2BAgg('quarter')" style="padding: 0.5rem 0.85rem; font-size: 0.8rem;">Por Quarter</button>
+                                <button class="sub-tab-btn" id="finB2BAggCY" onclick="setFinB2BAgg('cy')" style="padding: 0.5rem 0.85rem; font-size: 0.8rem;">Por Ano</button>
+                            </div>
+                        </div>
+
+                        <div style="position: relative; height: 350px;">
+                            <canvas id="finChartB2CB2B"></canvas>
+                        </div>
+                        
+                        <!-- Legenda -->
+                        <div style="display: flex; gap: 2rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #f0f0f0; justify-content: center; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 16px; height: 16px; background: #0071e3; border-radius: 3px;"></div>
+                                <span style="font-size: 0.85rem; color: #1d1d1f; font-weight: 500;">B2C (Consumidor)</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 16px; height: 16px; background: #34c759; border-radius: 3px;"></div>
+                                <span style="font-size: 0.85rem; color: #1d1d1f; font-weight: 500;">B2B (Empresas)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scorecards Completos por Operador -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        
+                        <!-- MEO Scorecard -->
+                        <div style="background: linear-gradient(135deg, #0071e3 0%, #005bb5 100%); border-radius: 14px; padding: 1.5rem; color: #ffffff; box-shadow: 0 3px 20px rgba(0, 113, 227, 0.25);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0; color: #ffffff;">MEO (Altice PT)</h3>
+                                <span style="background: rgba(255,255,255,0.2); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.65rem; font-weight: 600; color: #ffffff;">✓ Confirmado</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; backdrop-filter: blur(10px);">
+                                <div style="font-size: 0.7rem; opacity: 0.9; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.4px;">Receita Total</div>
+                                <div id="kpiMEOTotal" style="font-size: 1.8rem; font-weight: 700;">€0M</div>
+                                <div id="kpiMEOPeriod" style="font-size: 0.75rem; opacity: 0.85; margin-top: 0.25rem;">CYQ3'25</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 0.75rem; text-align: center;">
+                                    <div id="kpiMEOB2C" style="font-size: 1.2rem; font-weight: 700;">€0M</div>
+                                    <div style="font-size: 0.7rem; opacity: 0.85; margin-top: 0.25rem;">B2C</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 0.75rem; text-align: center;">
+                                    <div id="kpiMEOB2B" style="font-size: 1.2rem; font-weight: 700;">€0M</div>
+                                    <div style="font-size: 0.7rem; opacity: 0.85; margin-top: 0.25rem;">B2B</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- NOS Scorecard -->
+                        <div style="background: linear-gradient(135deg, #1d1d1f 0%, #000000 100%); border-radius: 14px; padding: 1.5rem; color: #ffffff; box-shadow: 0 3px 20px rgba(29, 29, 31, 0.3);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0; color: #ffffff;">NOS</h3>
+                                <span style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.65rem; font-weight: 600; color: #ffffff;">✓ Confirmado</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; backdrop-filter: blur(10px);">
+                                <div style="font-size: 0.7rem; opacity: 0.85; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.4px;">Receita Total</div>
+                                <div id="kpiNOSTotal" style="font-size: 1.8rem; font-weight: 700;">€0M</div>
+                                <div id="kpiNOSPeriod" style="font-size: 0.75rem; opacity: 0.8; margin-top: 0.25rem;">CYQ3'25</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                                <div style="background: rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem; text-align: center;">
+                                    <div id="kpiNOSB2C" style="font-size: 1.2rem; font-weight: 700;">€0M</div>
+                                    <div style="font-size: 0.7rem; opacity: 0.8; margin-top: 0.25rem;">B2C</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem; text-align: center;">
+                                    <div id="kpiNOSB2B" style="font-size: 1.2rem; font-weight: 700;">€0M</div>
+                                    <div style="font-size: 0.7rem; opacity: 0.8; margin-top: 0.25rem;">B2B</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vodafone Scorecard -->
+                        <div style="background: linear-gradient(135deg, #e30613 0%, #b00510 100%); border-radius: 14px; padding: 1.5rem; color: #ffffff; box-shadow: 0 3px 20px rgba(227, 6, 19, 0.3);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0; color: #ffffff;">Vodafone</h3>
+                                <span style="background: rgba(255,255,255,0.2); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.65rem; font-weight: 600; color: #ffffff;">≈ Estimado</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; backdrop-filter: blur(10px);">
+                                <div style="font-size: 0.7rem; opacity: 0.9; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.4px;">Receita Total</div>
+                                <div id="kpiVodafoneTotal" style="font-size: 1.8rem; font-weight: 700;">€0M</div>
+                                <div id="kpiVodafonePeriod" style="font-size: 0.75rem; opacity: 0.85; margin-top: 0.25rem;">CYQ3'25 (est.)</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 0.75rem; text-align: center;">
+                                    <div id="kpiVodafoneB2C" style="font-size: 1.2rem; font-weight: 700;">€0M</div>
+                                    <div style="font-size: 0.7rem; opacity: 0.85; margin-top: 0.25rem;">B2C</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 0.75rem; text-align: center;">
+                                    <div id="kpiVodafoneB2B" style="font-size: 1.2rem; font-weight: 700;">€0M</div>
+                                    <div style="font-size: 0.7rem; opacity: 0.85; margin-top: 0.25rem;">B2B</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- SUB-TAB 2: Rentabilidade -->
+                <div id="fin-rentabilidade" class="sub-tab-content">
+                    <p style="font-size: 0.9rem; color: #6e6e73; margin-bottom: 1.5rem; font-weight: 500;">
+                        Análise de margens EBITDA e rentabilidade operacional por operador
+                    </p>
+                    
+                    <!-- KPI Cards de Rentabilidade -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        
+                        <!-- NOS - Líder em Margem -->
+                        <div style="background: linear-gradient(135deg, #1d1d1f 0%, #000000 100%); border-radius: 14px; padding: 1.5rem; color: #ffffff; box-shadow: 0 3px 20px rgba(29, 29, 31, 0.3);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0; color: #ffffff;">NOS</h3>
+                                <span style="background: #34c759; border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.65rem; font-weight: 600; color: #ffffff;">🏆 LÍDER</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; backdrop-filter: blur(10px);">
+                                <div style="font-size: 0.7rem; opacity: 0.85; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.4px;">Margem EBITDA</div>
+                                <div id="kpiNOSMargin" style="font-size: 2.2rem; font-weight: 700;">48.7%</div>
+                                <div id="kpiNOSMarginYoY" style="font-size: 0.75rem; opacity: 0.8; margin-top: 0.25rem;">+3.8 pp vs CYQ3'24</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                                <div style="background: rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem; text-align: center;">
+                                    <div id="kpiNOSEbitda" style="font-size: 1.2rem; font-weight: 700;">€222.7M</div>
+                                    <div style="font-size: 0.7rem; opacity: 0.8; margin-top: 0.25rem;">EBITDA</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem; text-align: center;">
+                                    <div id="kpiNOSCapex" style="font-size: 1.2rem; font-weight: 700;">€112.6M</div>
+                                    <div style="font-size: 0.7rem; opacity: 0.8; margin-top: 0.25rem;">CAPEX</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MEO -->
+                        <div style="background: linear-gradient(135deg, #0071e3 0%, #005bb5 100%); border-radius: 14px; padding: 1.5rem; color: #ffffff; box-shadow: 0 3px 20px rgba(0, 113, 227, 0.25);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0; color: #ffffff;">MEO (Altice PT)</h3>
+                                <span style="background: rgba(255,255,255,0.2); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.65rem; font-weight: 600; color: #ffffff;">#2</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; backdrop-filter: blur(10px);">
+                                <div style="font-size: 0.7rem; opacity: 0.9; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.4px;">Margem EBITDA</div>
+                                <div id="kpiMEOMargin" style="font-size: 2.2rem; font-weight: 700;">33.9%</div>
+                                <div id="kpiMEOMarginYoY" style="font-size: 0.75rem; opacity: 0.85; margin-top: 0.25rem;">-0.4 pp vs CYQ3'24</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 0.75rem; text-align: center;">
+                                    <div id="kpiMEOEbitda" style="font-size: 1.2rem; font-weight: 700;">€228.9M</div>
+                                    <div style="font-size: 0.7rem; opacity: 0.85; margin-top: 0.25rem;">EBITDA</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 0.75rem; text-align: center;">
+                                    <div style="font-size: 1.2rem; font-weight: 700;">n/d</div>
+                                    <div style="font-size: 0.7rem; opacity: 0.85; margin-top: 0.25rem;">CAPEX</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vodafone -->
+                        <div style="background: linear-gradient(135deg, #e30613 0%, #b00510 100%); border-radius: 14px; padding: 1.5rem; color: #ffffff; box-shadow: 0 3px 20px rgba(227, 6, 19, 0.3);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0; color: #ffffff;">Vodafone</h3>
+                                <span style="background: rgba(255,255,255,0.2); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.65rem; font-weight: 600; color: #ffffff;">#3 (est.)</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; backdrop-filter: blur(10px);">
+                                <div style="font-size: 0.7rem; opacity: 0.9; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.4px;">Margem EBITDA</div>
+                                <div id="kpiVodafoneMargin" style="font-size: 2.2rem; font-weight: 700;">30.0%</div>
+                                <div id="kpiVodafoneMarginYoY" style="font-size: 0.75rem; opacity: 0.85; margin-top: 0.25rem;">+1.1 pp vs CYQ3'24</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 0.75rem; text-align: center;">
+                                    <div id="kpiVodafoneEbitda" style="font-size: 1.2rem; font-weight: 700;">€80.0M</div>
+                                    <div style="font-size: 0.7rem; opacity: 0.85; margin-top: 0.25rem;">EBITDA</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 0.75rem; text-align: center;">
+                                    <div id="kpiVodafoneCapex" style="font-size: 1.2rem; font-weight: 700;">€34.0M</div>
+                                    <div style="font-size: 0.7rem; opacity: 0.85; margin-top: 0.25rem;">CAPEX</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Gráfico: Evolução de Margens EBITDA -->
+                    <div style="background: #ffffff; border-radius: 18px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);">
+                        <div class="chart-header">
+                            <div>
+                                <h3 style="margin: 0 0 0.5rem; font-size: 1.1rem; font-weight: 600; color: #1d1d1f;">Evolução de Margens EBITDA por Operador</h3>
+                                <p style="margin: 0; font-size: 0.85rem; color: #6e6e73;">Margem EBITDA (%) por trimestre</p>
+                            </div>
+                            <button class="chart-export-btn" onclick="exportFinancialChart('finChartMargins', 'Margens_EBITDA_Operadores')">⬇ Excel</button>
+                        </div>
+                        <div style="position: relative; height: 350px; margin-top: 1.5rem;">
+                            <canvas id="finChartMargins"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Análise Comparativa -->
+                    <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #34c759; border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+                        <h3 style="font-size: 1rem; font-weight: 600; color: #166534; margin: 0 0 1rem;">💡 Análise Comparativa de Rentabilidade</h3>
+                        <div style="display: grid; gap: 0.75rem; font-size: 0.9rem; color: #166534; line-height: 1.6;">
+                            <div style="display: flex; gap: 0.5rem;">
+                                <span style="font-weight: 700;">🏆 NOS:</span>
+                                <span>Líder absoluto com 48.7% de margem EBITDA (+3.8 pp YoY). Eficiência operacional de classe mundial.</span>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <span style="font-weight: 700;">📊 MEO:</span>
+                                <span>Margem de 33.9% sob pressão (-0.4 pp YoY). Impacto de reestruturação B2B e investimentos em fibra.</span>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <span style="font-weight: 700;">📈 Vodafone:</span>
+                                <span>Margem de 30.0% em melhoria (+1.1 pp YoY). Convergência fixo-móvel a gerar sinergias operacionais.</span>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <span style="font-weight: 700;">⚡ Gap Competitivo:</span>
+                                <span>NOS tem vantagem de 14.8 pp vs MEO e 18.7 pp vs Vodafone. Diferencial estrutural em custos operacionais.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- SUB-TAB 3: Mix B2C/B2B -->
+                <div id="fin-mix" class="sub-tab-content">
+                    <p style="font-size: 0.9rem; color: #6e6e73; margin-bottom: 1.5rem; font-weight: 500;">
+                        Distribuição de receitas entre segmentos B2C (Consumidor) e B2B (Empresas)
+                    </p>
+                    
+                    <!-- Gráficos de Pizza: Mix B2C/B2B por Operador -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        
+                        <!-- MEO Mix -->
+                        <div style="background: #ffffff; border-radius: 18px; padding: 1.5rem; box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);">
+                            <div class="chart-header" style="margin-bottom: 1rem;">
+                                <h4 style="margin: 0; font-size: 1rem; font-weight: 600; color: #0071e3;">MEO (Altice PT)</h4>
+                                <button class="chart-export-btn" onclick="exportFinancialChart('finChartMixMEO', 'Mix_B2C_B2B_MEO')">⬇ Excel</button>
+                            </div>
+                            <div style="position: relative; height: 250px;">
+                                <canvas id="finChartMixMEO"></canvas>
+                            </div>
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f0f0f0; text-align: center;">
+                                <div style="font-size: 0.85rem; color: #6e6e73; margin-bottom: 0.5rem;">Mix CYQ3'25</div>
+                                <div style="display: flex; justify-content: center; gap: 1.5rem;">
+                                    <div>
+                                        <span style="font-size: 1.2rem; font-weight: 700; color: #0071e3;" id="mixMEOB2C">54.4%</span>
+                                        <div style="font-size: 0.75rem; color: #6e6e73;">B2C</div>
+                                    </div>
+                                    <div>
+                                        <span style="font-size: 1.2rem; font-weight: 700; color: #0071e360;" id="mixMEOB2B">45.6%</span>
+                                        <div style="font-size: 0.75rem; color: #6e6e73;">B2B</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- NOS Mix -->
+                        <div style="background: #ffffff; border-radius: 18px; padding: 1.5rem; box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);">
+                            <div class="chart-header" style="margin-bottom: 1rem;">
+                                <h4 style="margin: 0; font-size: 1rem; font-weight: 600; color: #1d1d1f;">NOS</h4>
+                                <button class="chart-export-btn" onclick="exportFinancialChart('finChartMixNOS', 'Mix_B2C_B2B_NOS')">⬇ Excel</button>
+                            </div>
+                            <div style="position: relative; height: 250px;">
+                                <canvas id="finChartMixNOS"></canvas>
+                            </div>
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f0f0f0; text-align: center;">
+                                <div style="font-size: 0.85rem; color: #6e6e73; margin-bottom: 0.5rem;">Mix CYQ3'25</div>
+                                <div style="display: flex; justify-content: center; gap: 1.5rem;">
+                                    <div>
+                                        <span style="font-size: 1.2rem; font-weight: 700; color: #1d1d1f;" id="mixNOSB2C">72.3%</span>
+                                        <div style="font-size: 0.75rem; color: #6e6e73;">B2C</div>
+                                    </div>
+                                    <div>
+                                        <span style="font-size: 1.2rem; font-weight: 700; color: #1d1d1f60;" id="mixNOSB2B">27.7%</span>
+                                        <div style="font-size: 0.75rem; color: #6e6e73;">B2B</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vodafone Mix -->
+                        <div style="background: #ffffff; border-radius: 18px; padding: 1.5rem; box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);">
+                            <div class="chart-header" style="margin-bottom: 1rem;">
+                                <h4 style="margin: 0; font-size: 1rem; font-weight: 600; color: #e30613;">Vodafone (estimado)</h4>
+                                <button class="chart-export-btn" onclick="exportFinancialChart('finChartMixVoda', 'Mix_B2C_B2B_Vodafone')">⬇ Excel</button>
+                            </div>
+                            <div style="position: relative; height: 250px;">
+                                <canvas id="finChartMixVoda"></canvas>
+                            </div>
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f0f0f0; text-align: center;">
+                                <div style="font-size: 0.85rem; color: #6e6e73; margin-bottom: 0.5rem;">Mix CYQ3'25</div>
+                                <div style="display: flex; justify-content: center; gap: 1.5rem;">
+                                    <div>
+                                        <span style="font-size: 1.2rem; font-weight: 700; color: #e30613;" id="mixVodaB2C">68.1%</span>
+                                        <div style="font-size: 0.75rem; color: #6e6e73;">B2C</div>
+                                    </div>
+                                    <div>
+                                        <span style="font-size: 1.2rem; font-weight: 700; color: #e3061360;" id="mixVodaB2B">31.9%</span>
+                                        <div style="font-size: 0.75rem; color: #6e6e73;">B2B</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Tabela Comparativa de Mix -->
+                    <div style="background: #ffffff; border-radius: 18px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);">
+                        <h3 style="margin: 0 0 1.5rem; font-size: 1.1rem; font-weight: 600; color: #1d1d1f;">Tabela Comparativa: Mix B2C/B2B por Operador</h3>
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid #f0f0f0;">
+                                        <th style="text-align: left; padding: 1rem; color: #6e6e73; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px;">Operador</th>
+                                        <th style="text-align: right; padding: 1rem; color: #6e6e73; font-weight: 600; text-transform: uppercase; font-size: 0.75rem;">B2C (€M)</th>
+                                        <th style="text-align: right; padding: 1rem; color: #6e6e73; font-weight: 600; text-transform: uppercase; font-size: 0.75rem;">B2C (%)</th>
+                                        <th style="text-align: right; padding: 1rem; color: #6e6e73; font-weight: 600; text-transform: uppercase; font-size: 0.75rem;">B2B (€M)</th>
+                                        <th style="text-align: right; padding: 1rem; color: #6e6e73; font-weight: 600; text-transform: uppercase; font-size: 0.75rem;">B2B (%)</th>
+                                        <th style="text-align: right; padding: 1rem; color: #6e6e73; font-weight: 600; text-transform: uppercase; font-size: 0.75rem;">Total (€M)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mixTableBody">
+                                    <!-- Preenchido dinamicamente via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Análise Estratégica do Mix -->
+                    <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #0071e3; border-radius: 14px; padding: 1.5rem;">
+                        <h3 style="font-size: 1rem; font-weight: 600; color: #1e40af; margin: 0 0 1rem;">💡 Análise Estratégica do Mix B2C/B2B</h3>
+                        <div style="display: grid; gap: 0.75rem; font-size: 0.9rem; color: #1e40af; line-height: 1.6;">
+                            <div style="display: flex; gap: 0.5rem;">
+                                <span style="font-weight: 700;">🏢 MEO:</span>
+                                <span>Mix equilibrado (54% B2C / 46% B2B). Maior exposição B2B = risco de concentração mas margens superiores em corporate.</span>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <span style="font-weight: 700;">👥 NOS:</span>
+                                <span>Foco B2C (72% B2C / 28% B2B). Estratégia de mass market com pacotes convergentes. Menor dependência de grandes contratos.</span>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <span style="font-weight: 700;">📱 Vodafone:</span>
+                                <span>Orientação B2C (68% B2C / 32% B2B). Posicionamento em PME e consumidor. Convergência fixo-móvel a ganhar tração.</span>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <span style="font-weight: 700;">⚖️ Implicações:</span>
+                                <span>MEO mais vulnerável a ciclos económicos B2B. NOS e Vodafone beneficiam de receitas recorrentes B2C mais estáveis.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- SUB-TAB 4: Insights Estratégicos -->
+                <div id="fin-insights" class="sub-tab-content">
+                    <p style="font-size: 0.9rem; color: #6e6e73; margin-bottom: 1.5rem; font-weight: 500;">
+                        Análise consolidada dos dados financeiros e recomendações estratégicas por operador
+                    </p>
+                    
+                    <!-- Resumo Executivo -->
+                    <div style="background: linear-gradient(135deg, #1d1d1f 0%, #000000 100%); border-radius: 18px; padding: 2rem; margin-bottom: 2rem; color: #ffffff; box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);">
+                        <h3 style="font-size: 1.3rem; font-weight: 700; margin: 0 0 1.5rem; color: #ffffff;">📊 Resumo Executivo: Mercado Telco Português (CYQ3'25)</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 12px; padding: 1.25rem; backdrop-filter: blur(10px);">
+                                <div style="font-size: 0.75rem; opacity: 0.85; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Receitas Totais</div>
+                                <div style="font-size: 1.8rem; font-weight: 700; color: #34c759;">€1,354M</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 0.25rem;">MEO + NOS + Vodafone</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 12px; padding: 1.25rem; backdrop-filter: blur(10px);">
+                                <div style="font-size: 0.75rem; opacity: 0.85; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Margem Média</div>
+                                <div style="font-size: 1.8rem; font-weight: 700; color: #5ac8fa;">37.5%</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 0.25rem;">EBITDA ponderado</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 12px; padding: 1.25rem; backdrop-filter: blur(10px);">
+                                <div style="font-size: 0.75rem; opacity: 0.85; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Mix B2C/B2B</div>
+                                <div style="font-size: 1.8rem; font-weight: 700; color: #ff9f0a;">62% / 38%</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 0.25rem;">Mercado total</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Análise por Operador -->
+                    <h3 style="font-size: 1.2rem; font-weight: 600; color: #1d1d1f; margin: 0 0 1.5rem;">🎯 Análise Estratégica por Operador</h3>
+                    
+                    <div style="display: grid; gap: 1.5rem; margin-bottom: 2rem;">
+                        
+                        <!-- MEO Analysis -->
+                        <div style="background: #ffffff; border-left: 4px solid #0071e3; border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #0071e3 0%, #005bb5 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #ffffff; font-weight: 700;">M</div>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #0071e3;">MEO (Altice Portugal)</h4>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #6e6e73;">Líder de mercado em receitas totais</p>
+                                </div>
+                            </div>
+                            <div style="display: grid; gap: 0.75rem; font-size: 0.9rem; line-height: 1.6; color: #1d1d1f;">
+                                <div><strong style="color: #0071e3;">💰 Receitas:</strong> €682.1M (50.4% quota mercado) | YoY: -8.9% (pressão competitiva)</div>
+                                <div><strong style="color: #0071e3;">📊 Rentabilidade:</strong> Margem EBITDA 33.9% (-0.4 pp YoY) | Compressão por reestruturação B2B</div>
+                                <div><strong style="color: #0071e3;">🎯 Mix:</strong> 54% B2C / 46% B2B | Maior exposição B2B do mercado (risco concentração)</div>
+                                <div><strong style="color: #0071e3;">⚡ Forças:</strong> Liderança em fibra, base instalada legacy, força em corporate</div>
+                                <div><strong style="color: #0071e3;">⚠️ Desafios:</strong> Declínio B2B acelerado (-19.6% YoY), pressão de margens, churn B2C</div>
+                                <div style="background: #eff6ff; border-radius: 8px; padding: 0.75rem; margin-top: 0.5rem;">
+                                    <strong style="color: #1e40af;">💡 Recomendação:</strong> Diversificar receitas B2C (convergência 5G+Fibra), estabilizar carteira B2B com contratos multi-ano, otimizar custos operacionais para recuperar margem.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- NOS Analysis -->
+                        <div style="background: #ffffff; border-left: 4px solid #1d1d1f; border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #1d1d1f 0%, #000000 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #ffffff; font-weight: 700;">N</div>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #1d1d1f;">NOS</h4>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #6e6e73;">Líder absoluto em rentabilidade</p>
+                                </div>
+                            </div>
+                            <div style="display: grid; gap: 0.75rem; font-size: 0.9rem; line-height: 1.6; color: #1d1d1f;">
+                                <div><strong style="color: #1d1d1f;">💰 Receitas:</strong> €395.8M (29.2% quota) | YoY: -1.2% (estabilidade relativa)</div>
+                                <div><strong style="color: #1d1d1f;">📊 Rentabilidade:</strong> Margem EBITDA 48.7% (+3.8 pp YoY) 🏆 | Eficiência operacional de classe mundial</div>
+                                <div><strong style="color: #1d1d1f;">🎯 Mix:</strong> 72% B2C / 28% B2B | Foco mass market com pacotes convergentes</div>
+                                <div><strong style="color: #1d1d1f;">⚡ Forças:</strong> Margem líder, diversificação (Cinema+IT), base B2C leal, CAPEX eficiente</div>
+                                <div><strong style="color: #1d1d1f;">⚠️ Desafios:</strong> Quota de mercado estagnada, pressão de DIGI em low-end, saturação TV</div>
+                                <div style="background: #f0fdf4; border-radius: 8px; padding: 0.75rem; margin-top: 0.5rem;">
+                                    <strong style="color: #166534;">💡 Recomendação:</strong> Manter foco em eficiência operacional, expandir B2B (oportunidade vs MEO), monetizar base Cinema com upsell, defender posição B2C com inovação.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vodafone Analysis -->
+                        <div style="background: #ffffff; border-left: 4px solid #e30613; border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #e30613 0%, #b00510 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #ffffff; font-weight: 700;">V</div>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #e30613;">Vodafone Portugal</h4>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #6e6e73;">Challenger em recuperação</p>
+                                </div>
+                            </div>
+                            <div style="display: grid; gap: 0.75rem; font-size: 0.9rem; line-height: 1.6; color: #1d1d1f;">
+                                <div><strong style="color: #e30613;">💰 Receitas:</strong> €276.0M (20.4% quota, estimado) | YoY: +1.1% (crescimento moderado)</div>
+                                <div><strong style="color: #e30613;">📊 Rentabilidade:</strong> Margem EBITDA 30.0% (+1.1 pp YoY) | Melhoria consistente</div>
+                                <div><strong style="color: #e30613;">🎯 Mix:</strong> 68% B2C / 32% B2B | Posicionamento PME e consumidor</div>
+                                <div><strong style="color: #e30613;">⚡ Forças:</strong> Convergência fixo-móvel acelerada, marca forte, sinergias operacionais</div>
+                                <div><strong style="color: #e30613;">⚠️ Desafios:</strong> Quota limitada em fixo, pressão de preços, investimento 5G elevado</div>
+                                <div style="background: #fef2f2; border-radius: 8px; padding: 0.75rem; margin-top: 0.5rem;">
+                                    <strong style="color: #991b1b;">💡 Recomendação:</strong> Acelerar convergência (5G+Fibra), capturar quota em PME (gap vs MEO/NOS), otimizar CAPEX 5G, defender base móvel de DIGI.
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Tendências de Mercado -->
+                    <div style="background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border: 1px solid #ff9f0a; border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+                        <h3 style="font-size: 1.1rem; font-weight: 600; color: #9a3412; margin: 0 0 1rem;">📈 Tendências de Mercado 2025-2026</h3>
+                        <div style="display: grid; gap: 0.75rem; font-size: 0.9rem; color: #9a3412; line-height: 1.6;">
+                            <div><strong>🔄 Consolidação:</strong> Mercado maduro com 3 players principais. Entrada DIGI pressiona preços em low-end mas impacto limitado em value.</div>
+                            <div><strong>📡 5G:</strong> Rollout acelerado (MEO/NOS/Vodafone). Monetização via convergência fixo-móvel e IoT B2B.</div>
+                            <div><strong>🏢 B2B:</strong> Segmento em transformação. Cloud, cibersegurança e SD-WAN são vetores de crescimento vs voz/dados legacy.</div>
+                            <div><strong>💰 Margens:</strong> Pressão estrutural por CAPEX 5G e competição. NOS demonstra que eficiência operacional é chave.</div>
+                            <div><strong>🎯 Convergência:</strong> Pacotes 5G+Fibra+TV são o standard. Diferenciação via conteúdo (NOS Cinema) e serviços digitais.</div>
+                        </div>
+                    </div>
+
+                    <!-- Conclusão -->
+                    <div style="background: #ffffff; border-radius: 18px; padding: 2rem; box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);">
+                        <h3 style="font-size: 1.2rem; font-weight: 600; color: #1d1d1f; margin: 0 0 1rem;">🎯 Conclusão: Posicionamento Competitivo</h3>
+                        <div style="display: grid; gap: 1rem; font-size: 0.95rem; line-height: 1.7; color: #1d1d1f;">
+                            <p style="margin: 0;"><strong>MEO</strong> mantém liderança em receitas (50.4%) mas enfrenta desafios estruturais em B2B e margens. Necessita diversificar para B2C e otimizar custos.</p>
+                            <p style="margin: 0;"><strong>NOS</strong> é o operador mais rentável (48.7% EBITDA) com modelo de negócio equilibrado. Posição defensável mas quota estagnada requer expansão B2B.</p>
+                            <p style="margin: 0;"><strong>Vodafone</strong> está em recuperação (+1.1% receitas, +1.1 pp margem) via convergência. Oportunidade de ganhar quota em PME e fixo.</p>
+                            <p style="margin: 0; padding: 1rem; background: #f5f5f7; border-radius: 10px; border-left: 4px solid #0071e3;"><strong>Outlook 2026:</strong> Mercado estável com crescimento low single-digit. Vencedores serão operadores que combinam eficiência operacional (NOS), escala em convergência (MEO) e agilidade comercial (Vodafone). DIGI permanece nicho low-end.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Nota sobre fontes de dados -->
+                <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 12px; padding: 1.25rem; margin-top: 2rem;">
+                    <p style="font-size: 0.85rem; color: #856404; margin: 0; line-height: 1.6;">
+                        <strong>ℹ️ Nota sobre Fontes de Dados:</strong><br>
+                        • <strong>MEO (Altice Portugal):</strong> Dados confirmados de relatórios trimestrais públicos<br>
+                        • <strong>NOS:</strong> Dados confirmados de relatórios à CMVM<br>
+                        • <strong>Vodafone:</strong> Estimativas analíticas baseadas em quotas de mercado ANACOM<br>
+                        • Os dados financeiros <strong>não são da ANACOM</strong>, mas sim de fontes públicas dos operadores e estimativas
+                    </p>
+                </div>
+            </div>
+
+            <!-- SUB-TAB 5: Tabela Dinâmica -->
+            <div id="fin-tabela" class="sub-tab-content">
+                <p style="font-size: 0.9rem; color: #6e6e73; margin-bottom: 1.5rem; font-weight: 500;">
+                    Tabela comparativa completa com filtros dinâmicos e comparações Q/Q e Y/Y
+                </p>
+                
+                <!-- Filtros da Tabela -->
+                <div style="background: linear-gradient(135deg, #f5f5f7 0%, #e8e8ed 100%); border: 1px solid #d2d2d7; border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <!-- Filtro de Operador -->
+                        <div>
+                            <label style="display: block; font-size: 0.75rem; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; font-weight: 600;">Operador</label>
+                            <select id="tableOperator" onchange="updateDynamicTable()" style="width: 100%; padding: 0.65rem; background: #ffffff; color: #1d1d1f; border: 1px solid #d2d2d7; border-radius: 8px; font-weight: 500; font-size: 0.9rem; cursor: pointer;">
+                                <option value="all">Todos os Operadores</option>
+                                <option value="MEO">MEO (Altice Portugal)</option>
+                                <option value="NOS">NOS</option>
+                                <option value="Vodafone">Vodafone Portugal</option>
+                            </select>
+                        </div>
+                        <!-- Filtro de Período -->
+                        <div>
+                            <label style="display: block; font-size: 0.75rem; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; font-weight: 600;">Período</label>
+                            <select id="tablePeriod" onchange="updateDynamicTable()" style="width: 100%; padding: 0.65rem; background: #ffffff; color: #1d1d1f; border: 1px solid #d2d2d7; border-radius: 8px; font-weight: 500; font-size: 0.9rem; cursor: pointer;">
+                                <option value="all">Todos os Períodos</option>
+                                <option value="CYQ3'25" selected>CYQ3'25 (Mais Recente)</option>
+                                <option value="CYQ2'25">CYQ2'25</option>
+                                <option value="CYQ1'25">CYQ1'25</option>
+                                <option value="CYQ4'24">CYQ4'24</option>
+                                <option value="CYQ3'24">CYQ3'24</option>
+                                <option value="CYQ2'24">CYQ2'24</option>
+                                <option value="CYQ1'24">CYQ1'24</option>
+                            </select>
+                        </div>
+                        <!-- Filtro de Métrica -->
+                        <div>
+                            <label style="display: block; font-size: 0.75rem; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; font-weight: 600;">Métrica</label>
+                            <select id="tableMetric" onchange="updateDynamicTable()" style="width: 100%; padding: 0.65rem; background: #ffffff; color: #1d1d1f; border: 1px solid #d2d2d7; border-radius: 8px; font-weight: 500; font-size: 0.9rem; cursor: pointer;">
+                                <option value="all">Todas as Métricas</option>
+                                <option value="revenue">Receitas</option>
+                                <option value="ebitda">EBITDA</option>
+                                <option value="margin">Margens</option>
+                                <option value="mix">Mix B2C/B2B</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <button onclick="setTableView('comparison')" id="tableViewComparison" class="sub-tab-btn active" style="padding: 0.5rem 1rem; font-size: 0.85rem;">📊 Comparação</button>
+                        <button onclick="setTableView('evolution')" id="tableViewEvolution" class="sub-tab-btn" style="padding: 0.5rem 1rem; font-size: 0.85rem;">📈 Evolução Temporal</button>
+                        <button onclick="exportTableToExcel()" style="margin-left: auto; padding: 0.5rem 1rem; background: #34c759; color: #ffffff; border: none; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">⬇ Excel</button>
+                    </div>
+                </div>
+
+                <!-- Tabela Dinâmica -->
+                <div id="dynamicTableContainer" style="background: #ffffff; border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06); overflow-x: auto;">
+                    <!-- A tabela será gerada dinamicamente via JavaScript -->
+                </div>
+
+            </div>
+
+        </div>
     </div>
 
+    <script src="financial-data.js"></script>
     <script>
         // ===== EXPORTAÇÃO EXCEL =====
         function exportToExcel(filename, labels, datasets) {
@@ -3194,10 +3869,1205 @@
             container.innerHTML = html;
         }
 
+        // ═══════════════════════════════════════════════════════════════════
+        // FINANCEIRO: GRÁFICOS E FUNÇÕES (SPRINT 2 - MELHORADO)
+        // ═══════════════════════════════════════════════════════════════════
+
+        let finCharts = {
+            revTotal: null,
+            b2cb2b: null
+        };
+
+        let finSelectedOperator = 'all'; // 'all', 'MEO', 'NOS', 'Vodafone'
+        let finB2BAggregation = 'quarter'; // 'quarter' ou 'cy'
+        let finRevenueType = 'telco'; // 'telco' ou 'total'
+
+        // Função: Definir período rápido
+        function setFinPeriod(start, end) {
+            document.getElementById('finPeriodStart').value = start;
+            document.getElementById('finPeriodEnd').value = end;
+            updateFinancialCharts();
+        }
+
+        // Função: Definir operador para gráfico B2C/B2B
+        function setFinOperator(operator) {
+            finSelectedOperator = operator;
+            
+            // Atualizar pills
+            document.querySelectorAll('[id^="finOp"]').forEach(btn => btn.classList.remove('active'));
+            const btnId = operator === 'all' ? 'finOpAll' : 'finOp' + operator.replace('Vodafone', 'Voda');
+            document.getElementById(btnId).classList.add('active');
+            
+            updateFinancialCharts();
+        }
+
+        // Função: Definir agregação para gráfico B2C/B2B
+        function setFinB2BAgg(agg) {
+            finB2BAggregation = agg;
+            
+            // Atualizar botões
+            document.getElementById('finB2BAggQuarter').classList.toggle('active', agg === 'quarter');
+            document.getElementById('finB2BAggCY').classList.toggle('active', agg === 'cy');
+            
+            updateFinancialCharts();
+        }
+
+        // Função: Definir tipo de receita (telco vs total)
+        function setFinRevenueType(type) {
+            finRevenueType = type;
+            
+            // Atualizar botões
+            document.getElementById('finRevTypeTelco').classList.toggle('active', type === 'telco');
+            document.getElementById('finRevTypeTotal').classList.toggle('active', type === 'total');
+            
+            // Atualizar descrição
+            const desc = document.getElementById('finRevTypeDesc');
+            if (type === 'telco') {
+                desc.textContent = 'Receitas de serviços de telecomunicações (excluindo equipamentos e outros)';
+            } else {
+                desc.textContent = 'Receitas totais incluindo equipamentos, serviços de media e outros negócios';
+            }
+            
+            updateFinancialCharts();
+        }
+
+        // Função: Agregar dados por CY (Calendar Year)
+        function aggregateByCY(data, periods) {
+            const cyData = {};
+            periods.forEach((period, idx) => {
+                const year = period.includes('24') ? 'CY 2024' : 'CY 2025';
+                if (!cyData[year]) cyData[year] = 0;
+                cyData[year] += data[idx];
+            });
+            return cyData;
+        }
+
+        // Função: Atualizar gráficos financeiros
+        function updateFinancialCharts() {
+            const startIdx = parseInt(document.getElementById('finPeriodStart').value);
+            const endIdx = parseInt(document.getElementById('finPeriodEnd').value);
+            const aggregation = document.getElementById('finAggregation').value;
+            
+            if (startIdx > endIdx) {
+                alert('O período inicial deve ser anterior ao período final');
+                return;
+            }
+
+            let periods = operatorFinancials.periods.slice(startIdx, endIdx + 1);
+            
+            // Selecionar tipo de receita baseado no filtro
+            const revenueKey = finRevenueType === 'telco' ? 'telco' : 'total';
+            
+            // Dados MEO
+            let meoRevTotal = operatorFinancials.MEO.revenue[revenueKey].slice(startIdx, endIdx + 1);
+            let meoRevB2C = operatorFinancials.MEO.revenue.b2c.slice(startIdx, endIdx + 1);
+            let meoRevB2B = operatorFinancials.MEO.revenue.b2b.slice(startIdx, endIdx + 1);
+            
+            // Dados NOS
+            let nosRevTotal = operatorFinancials.NOS.revenue[revenueKey].slice(startIdx, endIdx + 1);
+            let nosRevB2C = operatorFinancials.NOS.revenue.b2c.slice(startIdx, endIdx + 1);
+            let nosRevB2B = operatorFinancials.NOS.revenue.b2b.slice(startIdx, endIdx + 1);
+            
+            // Dados Vodafone
+            let vodaRevTotal = operatorFinancials.Vodafone.revenue[revenueKey].slice(startIdx, endIdx + 1);
+            let vodaRevB2C = operatorFinancials.Vodafone.revenue.b2c.slice(startIdx, endIdx + 1);
+            let vodaRevB2B = operatorFinancials.Vodafone.revenue.b2b.slice(startIdx, endIdx + 1);
+
+            // Se agregação por CY, somar quarters
+            if (aggregation === 'cy') {
+                const cyMeoTotal = aggregateByCY(meoRevTotal, periods);
+                const cyMeoB2C = aggregateByCY(meoRevB2C, periods);
+                const cyMeoB2B = aggregateByCY(meoRevB2B, periods);
+                
+                const cyNosTotal = aggregateByCY(nosRevTotal, periods);
+                const cyNosB2C = aggregateByCY(nosRevB2C, periods);
+                const cyNosB2B = aggregateByCY(nosRevB2B, periods);
+                
+                const cyVodaTotal = aggregateByCY(vodaRevTotal, periods);
+                const cyVodaB2C = aggregateByCY(vodaRevB2C, periods);
+                const cyVodaB2B = aggregateByCY(vodaRevB2B, periods);
+                
+                periods = Object.keys(cyMeoTotal);
+                meoRevTotal = Object.values(cyMeoTotal);
+                meoRevB2C = Object.values(cyMeoB2C);
+                meoRevB2B = Object.values(cyMeoB2B);
+                nosRevTotal = Object.values(cyNosTotal);
+                nosRevB2C = Object.values(cyNosB2C);
+                nosRevB2B = Object.values(cyNosB2B);
+                vodaRevTotal = Object.values(cyVodaTotal);
+                vodaRevB2C = Object.values(cyVodaB2C);
+                vodaRevB2B = Object.values(cyVodaB2B);
+            }
+
+            // Atualizar Scorecards (último período)
+            const lastIdx = periods.length - 1;
+            const lastPeriod = periods[lastIdx];
+            
+            // MEO Scorecard
+            document.getElementById('kpiMEOTotal').textContent = '€' + meoRevTotal[lastIdx].toFixed(1) + 'M';
+            document.getElementById('kpiMEOB2C').textContent = '€' + meoRevB2C[lastIdx].toFixed(1) + 'M';
+            document.getElementById('kpiMEOB2B').textContent = '€' + meoRevB2B[lastIdx].toFixed(1) + 'M';
+            document.getElementById('kpiMEOPeriod').textContent = lastPeriod;
+            
+            // NOS Scorecard
+            document.getElementById('kpiNOSTotal').textContent = '€' + nosRevTotal[lastIdx].toFixed(1) + 'M';
+            document.getElementById('kpiNOSB2C').textContent = '€' + nosRevB2C[lastIdx].toFixed(1) + 'M';
+            document.getElementById('kpiNOSB2B').textContent = '€' + nosRevB2B[lastIdx].toFixed(1) + 'M';
+            document.getElementById('kpiNOSPeriod').textContent = lastPeriod;
+            
+            // Vodafone Scorecard
+            document.getElementById('kpiVodafoneTotal').textContent = '€' + vodaRevTotal[lastIdx].toFixed(1) + 'M';
+            document.getElementById('kpiVodafoneB2C').textContent = '€' + vodaRevB2C[lastIdx].toFixed(1) + 'M';
+            document.getElementById('kpiVodafoneB2B').textContent = '€' + vodaRevB2B[lastIdx].toFixed(1) + 'M';
+            document.getElementById('kpiVodafonePeriod').textContent = lastPeriod + ' (est.)';
+
+            // Gráfico 1: Evolução de Receitas Totais
+            createFinRevTotalChart(periods, meoRevTotal, nosRevTotal, vodaRevTotal);
+
+            // Gráfico 2: B2C vs B2B (com filtro de operador)
+            createFinB2CB2BChart(periods, meoRevB2C, meoRevB2B, nosRevB2C, nosRevB2B, vodaRevB2C, vodaRevB2B);
+        }
+
+        // Gráfico 1: Evolução de Receitas Totais (Stacked Vertical Bar Chart)
+        function createFinRevTotalChart(periods, meoData, nosData, vodaData) {
+            if (finCharts.revTotal) {
+                finCharts.revTotal.destroy();
+            }
+
+            const ctx = document.getElementById('finChartRevTotal').getContext('2d');
+            finCharts.revTotal = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: periods,
+                    datasets: [
+                        {
+                            label: 'MEO (Altice Portugal)',
+                            data: meoData,
+                            backgroundColor: COLORS.meo,
+                            borderRadius: { topLeft: 0, topRight: 0, bottomLeft: 6, bottomRight: 6 },
+                            borderSkipped: false
+                        },
+                        {
+                            label: 'NOS',
+                            data: nosData,
+                            backgroundColor: COLORS.nos,
+                            borderRadius: 0,
+                            borderSkipped: false
+                        },
+                        {
+                            label: 'Vodafone (estimado)',
+                            data: vodaData,
+                            backgroundColor: COLORS.vodafone,
+                            borderRadius: { topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0 },
+                            borderSkipped: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#1d1d1f',
+                                font: { size: 12, weight: 500 },
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1d1d1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': €' + context.parsed.y.toFixed(1) + 'M';
+                                },
+                                footer: function(tooltipItems) {
+                                    const idx = tooltipItems[0].dataIndex;
+                                    const total = meoData[idx] + nosData[idx] + vodaData[idx];
+                                    return 'Total: €' + total.toFixed(1) + 'M';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: {
+                                color: '#1d1d1f',
+                                font: { weight: 500 }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#6e6e73',
+                                callback: function(value) {
+                                    return '€' + value + 'M';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        }
+                    }
+                },
+                plugins: [{
+                    id: 'totalLabels',
+                    afterDatasetsDraw(chart) {
+                        const ctx = chart.ctx;
+                        chart.data.labels.forEach((label, index) => {
+                            const total = meoData[index] + nosData[index] + vodaData[index];
+                            const meta = chart.getDatasetMeta(chart.data.datasets.length - 1);
+                            const bar = meta.data[index];
+                            
+                            if (bar) {
+                                ctx.save();
+                                ctx.font = 'bold 11px -apple-system, sans-serif';
+                                ctx.fillStyle = '#1d1d1f';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'bottom';
+                                ctx.fillText('€' + total.toFixed(0) + 'M', bar.x, bar.y - 5);
+                                ctx.restore();
+                            }
+                        });
+                    }
+                }]
+            });
+        }
+
+        // Gráfico 2: B2C vs B2B (REDESENHADO - com filtro, agregação e cores dinâmicas)
+        function createFinB2CB2BChart(periods, meoB2C, meoB2B, nosB2C, nosB2B, vodaB2C, vodaB2B) {
+            if (finCharts.b2cb2b) {
+                finCharts.b2cb2b.destroy();
+            }
+
+            let labels, dataB2C, dataB2B;
+            let colorB2C, colorB2B;
+
+            // Aplicar agregação por CY se selecionado
+            if (finB2BAggregation === 'cy') {
+                const cyMeoB2C = aggregateByCY(meoB2C, periods);
+                const cyMeoB2B = aggregateByCY(meoB2B, periods);
+                const cyNosB2C = aggregateByCY(nosB2C, periods);
+                const cyNosB2B = aggregateByCY(nosB2B, periods);
+                const cyVodaB2C = aggregateByCY(vodaB2C, periods);
+                const cyVodaB2B = aggregateByCY(vodaB2B, periods);
+                
+                periods = Object.keys(cyMeoB2C);
+                meoB2C = Object.values(cyMeoB2C);
+                meoB2B = Object.values(cyMeoB2B);
+                nosB2C = Object.values(cyNosB2C);
+                nosB2B = Object.values(cyNosB2B);
+                vodaB2C = Object.values(cyVodaB2C);
+                vodaB2B = Object.values(cyVodaB2B);
+            }
+
+            // Definir dados e cores baseado no operador selecionado
+            if (finSelectedOperator === 'all') {
+                // Mostrar distribuição total do mercado
+                labels = periods;
+                dataB2C = periods.map((_, idx) => meoB2C[idx] + nosB2C[idx] + vodaB2C[idx]);
+                dataB2B = periods.map((_, idx) => meoB2B[idx] + nosB2B[idx] + vodaB2B[idx]);
+                colorB2C = COLORS.meo;
+                colorB2B = COLORS.digi;
+            } else {
+                // Mostrar apenas o operador selecionado com cores dinâmicas
+                labels = periods;
+                const opColors = {
+                    'MEO': COLORS.meo,
+                    'NOS': COLORS.nos,
+                    'Vodafone': COLORS.vodafone
+                };
+                
+                if (finSelectedOperator === 'MEO') {
+                    dataB2C = meoB2C;
+                    dataB2B = meoB2B;
+                } else if (finSelectedOperator === 'NOS') {
+                    dataB2C = nosB2C;
+                    dataB2B = nosB2B;
+                } else if (finSelectedOperator === 'Vodafone') {
+                    dataB2C = vodaB2C;
+                    dataB2B = vodaB2B;
+                }
+                
+                colorB2C = opColors[finSelectedOperator];
+                colorB2B = opColors[finSelectedOperator] + '60'; // 60 = ~37% opacity
+            }
+
+            const ctx = document.getElementById('finChartB2CB2B').getContext('2d');
+            finCharts.b2cb2b = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'B2C (Consumidor)',
+                            data: dataB2C,
+                            backgroundColor: colorB2C,
+                            borderRadius: 6,
+                            borderSkipped: false
+                        },
+                        {
+                            label: 'B2B (Empresas)',
+                            data: dataB2B,
+                            backgroundColor: colorB2B,
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#1d1d1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed.y;
+                                    const total = dataB2C[context.dataIndex] + dataB2B[context.dataIndex];
+                                    const percent = ((value / total) * 100).toFixed(1);
+                                    return context.dataset.label + ': €' + value.toFixed(1) + 'M (' + percent + '%)';
+                                }
+                            }
+                        },
+                        // Plugin para labels de percentagem nas barras
+                        datalabels: false
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: {
+                                color: '#1d1d1f',
+                                font: { size: 11, weight: 500 }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#6e6e73',
+                                callback: function(value) {
+                                    return '€' + value + 'M';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        }
+                    }
+                },
+                plugins: [{
+                    id: 'percentageLabels',
+                    afterDatasetsDraw(chart) {
+                        const ctx = chart.ctx;
+                        chart.data.datasets.forEach((dataset, i) => {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach((bar, index) => {
+                                const value = dataset.data[index];
+                                const total = dataB2C[index] + dataB2B[index];
+                                const percent = Math.round((value / total) * 100);
+                                
+                                // Só mostrar se percentagem >= 5% (para não poluir)
+                                if (percent >= 5) {
+                                    ctx.save();
+                                    ctx.font = 'bold 12px -apple-system, sans-serif';
+                                    ctx.fillStyle = '#ffffff';
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'middle';
+                                    ctx.fillText(percent + '%', bar.x, bar.y + (bar.height / 2));
+                                    ctx.restore();
+                                }
+                            });
+                        });
+                    }
+                }]
+            });
+        }
+
+        // Função: Exportar gráfico financeiro para Excel
+        function exportFinancialChart(chartId, filename) {
+            const chart = finCharts[chartId === 'finChartRevTotal' ? 'revTotal' : 'b2cb2b'];
+            if (!chart) return;
+            
+            const labels = chart.data.labels;
+            const datasets = chart.data.datasets.map(d => ({
+                label: d.label || 'Valor',
+                data: d.data
+            }));
+            
+            exportToExcel(filename, labels, datasets);
+        }
+
+        // Função: Criar gráfico de margens EBITDA
+        function createFinMarginsChart() {
+            if (finCharts.margins) {
+                finCharts.margins.destroy();
+            }
+
+            const startIdx = parseInt(document.getElementById('finPeriodStart').value);
+            const endIdx = parseInt(document.getElementById('finPeriodEnd').value);
+            const periods = operatorFinancials.periods.slice(startIdx, endIdx + 1);
+            
+            const meoMargins = operatorFinancials.MEO.ebitda.margin.slice(startIdx, endIdx + 1);
+            const nosMargins = operatorFinancials.NOS.ebitda.margin.slice(startIdx, endIdx + 1);
+            const vodaMargins = operatorFinancials.Vodafone.ebitda.margin.slice(startIdx, endIdx + 1);
+
+            const ctx = document.getElementById('finChartMargins').getContext('2d');
+            finCharts.margins = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: periods,
+                    datasets: [
+                        {
+                            label: 'NOS',
+                            data: nosMargins,
+                            borderColor: COLORS.nos,
+                            backgroundColor: COLORS.nos + '18',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: COLORS.nos,
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            tension: 0.35,
+                            fill: true
+                        },
+                        {
+                            label: 'MEO (Altice Portugal)',
+                            data: meoMargins,
+                            borderColor: COLORS.meo,
+                            backgroundColor: COLORS.meo + '18',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: COLORS.meo,
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            tension: 0.35,
+                            fill: true
+                        },
+                        {
+                            label: 'Vodafone (estimado)',
+                            data: vodaMargins,
+                            borderColor: COLORS.vodafone,
+                            backgroundColor: COLORS.vodafone + '18',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: COLORS.vodafone,
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            tension: 0.35,
+                            fill: true,
+                            borderDash: [5, 5]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#1d1d1f',
+                                font: { size: 12, weight: 500 },
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1d1d1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 20,
+                            max: 55,
+                            ticks: {
+                                color: '#6e6e73',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#1d1d1f',
+                                font: { weight: 500 }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Função: Atualizar KPIs de rentabilidade
+        function updateRentabilityKPIs() {
+            const endIdx = parseInt(document.getElementById('finPeriodEnd').value);
+            
+            // Dados do último período
+            const meoMargin = operatorFinancials.MEO.ebitda.margin[endIdx];
+            const meoEbitda = operatorFinancials.MEO.ebitda.total[endIdx];
+            const nosMargin = operatorFinancials.NOS.ebitda.margin[endIdx];
+            const nosEbitda = operatorFinancials.NOS.ebitda.total[endIdx];
+            const nosCapex = operatorFinancials.NOS.capex.total[endIdx];
+            const vodaMargin = operatorFinancials.Vodafone.ebitda.margin[endIdx];
+            const vodaEbitda = operatorFinancials.Vodafone.ebitda.total[endIdx];
+            const vodaCapex = operatorFinancials.Vodafone.capex.total[endIdx];
+            
+            // Calcular YoY (comparar com Q3'24 se disponível)
+            const yoyIdx = endIdx >= 2 ? endIdx - 2 : null; // CYQ3'24 está 2 posições antes de CYQ3'25
+            
+            // MEO
+            document.getElementById('kpiMEOMargin').textContent = meoMargin.toFixed(1) + '%';
+            document.getElementById('kpiMEOEbitda').textContent = '€' + meoEbitda.toFixed(1) + 'M';
+            if (yoyIdx !== null) {
+                const meoMarginYoY = meoMargin - operatorFinancials.MEO.ebitda.margin[yoyIdx];
+                document.getElementById('kpiMEOMarginYoY').textContent =
+                    (meoMarginYoY >= 0 ? '+' : '') + meoMarginYoY.toFixed(1) + ' pp vs CYQ3\'24';
+            }
+            
+            // NOS
+            document.getElementById('kpiNOSMargin').textContent = nosMargin.toFixed(1) + '%';
+            document.getElementById('kpiNOSEbitda').textContent = '€' + nosEbitda.toFixed(1) + 'M';
+            document.getElementById('kpiNOSCapex').textContent = '€' + nosCapex.toFixed(1) + 'M';
+            if (yoyIdx !== null) {
+                const nosMarginYoY = nosMargin - operatorFinancials.NOS.ebitda.margin[yoyIdx];
+                document.getElementById('kpiNOSMarginYoY').textContent =
+                    (nosMarginYoY >= 0 ? '+' : '') + nosMarginYoY.toFixed(1) + ' pp vs CYQ3\'24';
+            }
+            
+            // Vodafone
+            document.getElementById('kpiVodafoneMargin').textContent = vodaMargin.toFixed(1) + '%';
+            document.getElementById('kpiVodafoneEbitda').textContent = '€' + vodaEbitda.toFixed(1) + 'M';
+            document.getElementById('kpiVodafoneCapex').textContent = '€' + vodaCapex.toFixed(1) + 'M';
+            if (yoyIdx !== null) {
+                const vodaMarginYoY = vodaMargin - operatorFinancials.Vodafone.ebitda.margin[yoyIdx];
+                document.getElementById('kpiVodafoneMarginYoY').textContent =
+                    (vodaMarginYoY >= 0 ? '+' : '') + vodaMarginYoY.toFixed(1) + ' pp vs CYQ3\'24';
+            }
+        }
+
+        // Função: Criar gráficos de pizza Mix B2C/B2B
+        function createFinMixCharts() {
+            const endIdx = parseInt(document.getElementById('finPeriodEnd').value);
+            
+            // Dados do último período
+            const meoB2C = operatorFinancials.MEO.revenue.b2c[endIdx];
+            const meoB2B = operatorFinancials.MEO.revenue.b2b[endIdx];
+            const nosB2C = operatorFinancials.NOS.revenue.b2c[endIdx];
+            const nosB2B = operatorFinancials.NOS.revenue.b2b[endIdx];
+            const vodaB2C = operatorFinancials.Vodafone.revenue.b2c[endIdx];
+            const vodaB2B = operatorFinancials.Vodafone.revenue.b2b[endIdx];
+            
+            // Calcular percentagens
+            const meoTotal = meoB2C + meoB2B;
+            const nosTotal = nosB2C + nosB2B;
+            const vodaTotal = vodaB2C + vodaB2B;
+            
+            const meoPctB2C = (meoB2C / meoTotal) * 100;
+            const meoPctB2B = (meoB2B / meoTotal) * 100;
+            const nosPctB2C = (nosB2C / nosTotal) * 100;
+            const nosPctB2B = (nosB2B / nosTotal) * 100;
+            const vodaPctB2C = (vodaB2C / vodaTotal) * 100;
+            const vodaPctB2B = (vodaB2B / vodaTotal) * 100;
+            
+            // Atualizar labels de percentagem
+            document.getElementById('mixMEOB2C').textContent = meoPctB2C.toFixed(1) + '%';
+            document.getElementById('mixMEOB2B').textContent = meoPctB2B.toFixed(1) + '%';
+            document.getElementById('mixNOSB2C').textContent = nosPctB2C.toFixed(1) + '%';
+            document.getElementById('mixNOSB2B').textContent = nosPctB2B.toFixed(1) + '%';
+            document.getElementById('mixVodaB2C').textContent = vodaPctB2C.toFixed(1) + '%';
+            document.getElementById('mixVodaB2B').textContent = vodaPctB2B.toFixed(1) + '%';
+            
+            // Configuração comum para gráficos de pizza
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#1d1d1f',
+                            font: { size: 11, weight: 500 },
+                            padding: 10,
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1d1d1f',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        padding: 10,
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const pct = ((value / total) * 100).toFixed(1);
+                                return label + ': €' + value.toFixed(1) + 'M (' + pct + '%)';
+                            }
+                        }
+                    }
+                }
+            };
+            
+            // MEO Mix
+            if (finCharts.mixMEO) finCharts.mixMEO.destroy();
+            const ctxMEO = document.getElementById('finChartMixMEO').getContext('2d');
+            finCharts.mixMEO = new Chart(ctxMEO, {
+                type: 'doughnut',
+                data: {
+                    labels: ['B2C (Consumidor)', 'B2B (Empresas)'],
+                    datasets: [{
+                        data: [meoB2C, meoB2B],
+                        backgroundColor: [COLORS.meo, COLORS.meo + '60'],
+                        borderColor: '#ffffff',
+                        borderWidth: 3
+                    }]
+                },
+                options: commonOptions
+            });
+            
+            // NOS Mix
+            if (finCharts.mixNOS) finCharts.mixNOS.destroy();
+            const ctxNOS = document.getElementById('finChartMixNOS').getContext('2d');
+            finCharts.mixNOS = new Chart(ctxNOS, {
+                type: 'doughnut',
+                data: {
+                    labels: ['B2C (Consumidor)', 'B2B (Empresas)'],
+                    datasets: [{
+                        data: [nosB2C, nosB2B],
+                        backgroundColor: [COLORS.nos, COLORS.nos + '60'],
+                        borderColor: '#ffffff',
+                        borderWidth: 3
+                    }]
+                },
+                options: commonOptions
+            });
+            
+            // Vodafone Mix
+            if (finCharts.mixVoda) finCharts.mixVoda.destroy();
+            const ctxVoda = document.getElementById('finChartMixVoda').getContext('2d');
+            finCharts.mixVoda = new Chart(ctxVoda, {
+                type: 'doughnut',
+                data: {
+                    labels: ['B2C (Consumidor)', 'B2B (Empresas)'],
+                    datasets: [{
+                        data: [vodaB2C, vodaB2B],
+                        backgroundColor: [COLORS.vodafone, COLORS.vodafone + '60'],
+                        borderColor: '#ffffff',
+                        borderWidth: 3
+                    }]
+                },
+                options: commonOptions
+            });
+            
+            // Preencher tabela comparativa
+            const tableBody = document.getElementById('mixTableBody');
+            if (tableBody) {
+                tableBody.innerHTML = `
+                    <tr style="border-bottom: 1px solid #f5f5f7; transition: background 0.15s;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
+                        <td style="padding: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: ${COLORS.meo};"></span>
+                                <span style="font-weight: 600; color: #1d1d1f;">MEO</span>
+                            </div>
+                        </td>
+                        <td style="text-align: right; padding: 1rem; color: #1d1d1f; font-weight: 500;">€${meoB2C.toFixed(1)}M</td>
+                        <td style="text-align: right; padding: 1rem; color: #1d1d1f; font-weight: 600;">${meoPctB2C.toFixed(1)}%</td>
+                        <td style="text-align: right; padding: 1rem; color: #1d1d1f; font-weight: 500;">€${meoB2B.toFixed(1)}M</td>
+                        <td style="text-align: right; padding: 1rem; color: #1d1d1f; font-weight: 600;">${meoPctB2B.toFixed(1)}%</td>
+                        <td style="text-align: right; padding: 1rem; color: #0071e3; font-weight: 700;">€${meoTotal.toFixed(1)}M</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f5f5f7; transition: background 0.15s;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
+                        <td style="padding: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: ${COLORS.nos};"></span>
+                                <span style="font-weight: 600; color: #1d1d1f;">NOS</span>
+                            </div>
+                        </td>
+                        <td style="text-align: right; padding: 1rem; color: #1d1d1f; font-weight: 500;">€${nosB2C.toFixed(1)}M</td>
+                        <td style="text-align: right; padding: 1rem; color: #1d1d1f; font-weight: 600;">${nosPctB2C.toFixed(1)}%</td>
+                        <td style="text-align: right; padding: 1rem; color: #1d1d1f; font-weight: 500;">€${nosB2B.toFixed(1)}M</td>
+                        <td style="text-align: right; padding: 1rem; color: #1d1d1f; font-weight: 600;">${nosPctB2B.toFixed(1)}%</td>
+                        <td style="text-align: right; padding: 1rem; color: #1d1d1f; font-weight: 700;">€${nosTotal.toFixed(1)}M</td>
+                    </tr>
+                    <tr style="transition: background 0.15s;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
+                        <td style="padding: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: ${COLORS.vodafone};"></span>
+                                <span style="font-weight: 600; color: #1d1d1f;">Vodafone</span>
+                                <span style="font-size: 0.7rem; background: #fff3cd; color: #856404; border-radius: 4px; padding: 0.1rem 0.4rem; font-weight: 600;">est.</span>
+                            </div>
+                        </td>
+                        <td style="text-align: right; padding: 1rem; color: #1d1d1f; font-weight: 500;">€${vodaB2C.toFixed(1)}M</td>
+                        <td style="text-align: right; padding: 1rem; color: #1d1d1f; font-weight: 600;">${vodaPctB2C.toFixed(1)}%</td>
+                        <td style="text-align: right; padding: 1rem; color: #1d1d1f; font-weight: 500;">€${vodaB2B.toFixed(1)}M</td>
+                        <td style="text-align: right; padding: 1rem; color: #1d1d1f; font-weight: 600;">${vodaPctB2B.toFixed(1)}%</td>
+                        <td style="text-align: right; padding: 1rem; color: #e30613; font-weight: 700;">€${vodaTotal.toFixed(1)}M</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Função: Inicializar gráficos financeiros
+        function initFinancialCharts() {
+            updateFinancialCharts();
+            createFinMarginsChart();
+            updateRentabilityKPIs();
+            createFinMixCharts();
+            updateDynamicTable();
+        }
+
+        // ============================================
+        // TABELA DINÂMICA
+        // ============================================
+
+        let tableView = 'comparison'; // 'comparison' ou 'evolution'
+
+        function setTableView(view) {
+            tableView = view;
+            document.getElementById('tableViewComparison').classList.toggle('active', view === 'comparison');
+            document.getElementById('tableViewEvolution').classList.toggle('active', view === 'evolution');
+            updateDynamicTable();
+        }
+
+        function updateDynamicTable() {
+            const operator = document.getElementById('tableOperator').value;
+            const period = document.getElementById('tablePeriod').value;
+            const metric = document.getElementById('tableMetric').value;
+            
+            if (tableView === 'comparison') {
+                generateComparisonTable(operator, period, metric);
+            } else {
+                generateEvolutionTable(operator, metric);
+            }
+        }
+
+        function generateComparisonTable(operator, period, metric) {
+            const container = document.getElementById('dynamicTableContainer');
+            
+            // Determinar operadores a mostrar
+            const operators = operator === 'all' ? ['MEO', 'NOS', 'Vodafone'] : [operator];
+            
+            // Determinar período (usar CYQ3'25 se "all" ou período específico)
+            const periodIndex = period === 'all' ? 6 : operatorFinancials.periods.indexOf(period);
+            const periodLabel = period === 'all' ? 'CYQ3\'25' : period;
+            
+            let html = `
+                <div style="margin-bottom: 1rem;">
+                    <h3 style="font-size: 1.1rem; font-weight: 600; color: #1d1d1f; margin: 0 0 0.5rem;">
+                        📊 Comparação de Operadores - ${periodLabel}
+                    </h3>
+                    <p style="font-size: 0.85rem; color: #6e6e73; margin: 0;">
+                        Valores em milhões de euros (€M) | Variações Q/Q e Y/Y calculadas automaticamente
+                    </p>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="background: #f5f5f7; border-bottom: 2px solid #d2d2d7;">
+                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; color: #1d1d1f;">Métrica</th>
+            `;
+            
+            operators.forEach(op => {
+                const color = op === 'MEO' ? '#0071e3' : op === 'NOS' ? '#1d1d1f' : '#e30613';
+                html += `<th style="padding: 0.75rem; text-align: right; font-weight: 600; color: ${color};">${op}</th>`;
+                html += `<th style="padding: 0.75rem; text-align: right; font-weight: 500; color: #6e6e73; font-size: 0.85rem;">Q/Q</th>`;
+                html += `<th style="padding: 0.75rem; text-align: right; font-weight: 500; color: #6e6e73; font-size: 0.85rem;">Y/Y</th>`;
+            });
+            
+            html += `</tr></thead><tbody>`;
+            
+            // Função auxiliar para calcular variações
+            const calcVariation = (current, previous) => {
+                if (!previous || previous === 0) return '-';
+                const variation = ((current - previous) / previous * 100).toFixed(1);
+                const color = variation >= 0 ? '#34c759' : '#ff3b30';
+                const arrow = variation >= 0 ? '▲' : '▼';
+                return `<span style="color: ${color}; font-weight: 600;">${arrow} ${Math.abs(variation)}%</span>`;
+            };
+            
+            // Adicionar linhas baseado na métrica selecionada
+            const addMetricRows = (metricType) => {
+                if (metric !== 'all' && metric !== metricType) return '';
+                
+                let rows = '';
+                
+                if (metricType === 'revenue') {
+                    rows += `<tr style="background: #fafafa;"><td colspan="${1 + operators.length * 3}" style="padding: 0.5rem 0.75rem; font-weight: 600; color: #1d1d1f; font-size: 0.95rem;">💰 RECEITAS</td></tr>`;
+                    
+                    ['Receita Total', 'Receita Telco', 'Receita B2C', 'Receita B2B'].forEach(label => {
+                        rows += `<tr style="border-bottom: 1px solid #e8e8ed;"><td style="padding: 0.65rem 0.75rem; color: #1d1d1f;">${label}</td>`;
+                        
+                        operators.forEach(op => {
+                            const data = operatorFinancials[op];
+                            let value = 0;
+                            let prevQ = 0, prevY = 0;
+                            
+                            if (label === 'Receita Total') {
+                                value = data.revenue.total[periodIndex];
+                                prevQ = periodIndex > 0 ? data.revenue.total[periodIndex - 1] : 0;
+                                prevY = periodIndex >= 4 ? data.revenue.total[periodIndex - 4] : 0;
+                            } else if (label === 'Receita Telco') {
+                                value = data.revenue.telco[periodIndex];
+                                prevQ = periodIndex > 0 ? data.revenue.telco[periodIndex - 1] : 0;
+                                prevY = periodIndex >= 4 ? data.revenue.telco[periodIndex - 4] : 0;
+                            } else if (label === 'Receita B2C') {
+                                value = data.revenue.b2c[periodIndex];
+                                prevQ = periodIndex > 0 ? data.revenue.b2c[periodIndex - 1] : 0;
+                                prevY = periodIndex >= 4 ? data.revenue.b2c[periodIndex - 4] : 0;
+                            } else if (label === 'Receita B2B') {
+                                value = data.revenue.b2b[periodIndex];
+                                prevQ = periodIndex > 0 ? data.revenue.b2b[periodIndex - 1] : 0;
+                                prevY = periodIndex >= 4 ? data.revenue.b2b[periodIndex - 4] : 0;
+                            }
+                            
+                            rows += `<td style="padding: 0.65rem 0.75rem; text-align: right; font-weight: 600;">€${value.toFixed(1)}M</td>`;
+                            rows += `<td style="padding: 0.65rem 0.75rem; text-align: right; font-size: 0.85rem;">${calcVariation(value, prevQ)}</td>`;
+                            rows += `<td style="padding: 0.65rem 0.75rem; text-align: right; font-size: 0.85rem;">${calcVariation(value, prevY)}</td>`;
+                        });
+                        
+                        rows += `</tr>`;
+                    });
+                }
+                
+                if (metricType === 'ebitda') {
+                    rows += `<tr style="background: #fafafa;"><td colspan="${1 + operators.length * 3}" style="padding: 0.5rem 0.75rem; font-weight: 600; color: #1d1d1f; font-size: 0.95rem;">📊 EBITDA</td></tr>`;
+                    
+                    ['EBITDA Total'].forEach(label => {
+                        rows += `<tr style="border-bottom: 1px solid #e8e8ed;"><td style="padding: 0.65rem 0.75rem; color: #1d1d1f;">${label}</td>`;
+                        
+                        operators.forEach(op => {
+                            const data = operatorFinancials[op];
+                            const value = data.ebitda.total[periodIndex];
+                            const prevQ = periodIndex > 0 ? data.ebitda.total[periodIndex - 1] : 0;
+                            const prevY = periodIndex >= 4 ? data.ebitda.total[periodIndex - 4] : 0;
+                            
+                            rows += `<td style="padding: 0.65rem 0.75rem; text-align: right; font-weight: 600;">€${value.toFixed(1)}M</td>`;
+                            rows += `<td style="padding: 0.65rem 0.75rem; text-align: right; font-size: 0.85rem;">${calcVariation(value, prevQ)}</td>`;
+                            rows += `<td style="padding: 0.65rem 0.75rem; text-align: right; font-size: 0.85rem;">${calcVariation(value, prevY)}</td>`;
+                        });
+                        
+                        rows += `</tr>`;
+                    });
+                }
+                
+                if (metricType === 'margin') {
+                    rows += `<tr style="background: #fafafa;"><td colspan="${1 + operators.length * 3}" style="padding: 0.5rem 0.75rem; font-weight: 600; color: #1d1d1f; font-size: 0.95rem;">📈 MARGENS</td></tr>`;
+                    
+                    ['Margem EBITDA'].forEach(label => {
+                        rows += `<tr style="border-bottom: 1px solid #e8e8ed;"><td style="padding: 0.65rem 0.75rem; color: #1d1d1f;">${label}</td>`;
+                        
+                        operators.forEach(op => {
+                            const data = operatorFinancials[op];
+                            const value = data.ebitda.margin[periodIndex];
+                            const prevQ = periodIndex > 0 ? data.ebitda.margin[periodIndex - 1] : 0;
+                            const prevY = periodIndex >= 4 ? data.ebitda.margin[periodIndex - 4] : 0;
+                            
+                            const diffQ = prevQ ? (value - prevQ).toFixed(1) : '-';
+                            const diffY = prevY ? (value - prevY).toFixed(1) : '-';
+                            const colorQ = diffQ !== '-' && diffQ >= 0 ? '#34c759' : '#ff3b30';
+                            const colorY = diffY !== '-' && diffY >= 0 ? '#34c759' : '#ff3b30';
+                            
+                            rows += `<td style="padding: 0.65rem 0.75rem; text-align: right; font-weight: 600;">${value.toFixed(1)}%</td>`;
+                            rows += `<td style="padding: 0.65rem 0.75rem; text-align: right; font-size: 0.85rem;"><span style="color: ${colorQ}; font-weight: 600;">${diffQ !== '-' ? (diffQ >= 0 ? '+' : '') + diffQ + ' pp' : '-'}</span></td>`;
+                            rows += `<td style="padding: 0.65rem 0.75rem; text-align: right; font-size: 0.85rem;"><span style="color: ${colorY}; font-weight: 600;">${diffY !== '-' ? (diffY >= 0 ? '+' : '') + diffY + ' pp' : '-'}</span></td>`;
+                        });
+                        
+                        rows += `</tr>`;
+                    });
+                }
+                
+                if (metricType === 'mix') {
+                    rows += `<tr style="background: #fafafa;"><td colspan="${1 + operators.length * 3}" style="padding: 0.5rem 0.75rem; font-weight: 600; color: #1d1d1f; font-size: 0.95rem;">🎯 MIX B2C/B2B</td></tr>`;
+                    
+                    ['% B2C', '% B2B'].forEach(label => {
+                        rows += `<tr style="border-bottom: 1px solid #e8e8ed;"><td style="padding: 0.65rem 0.75rem; color: #1d1d1f;">${label}</td>`;
+                        
+                        operators.forEach(op => {
+                            const data = operatorFinancials[op];
+                            const b2c = data.revenue.b2c[periodIndex];
+                            const b2b = data.revenue.b2b[periodIndex];
+                            const total = b2c + b2b;
+                            
+                            const value = label === '% B2C' ? (b2c / total * 100) : (b2b / total * 100);
+                            
+                            let prevQ = 0, prevY = 0;
+                            if (periodIndex > 0) {
+                                const totalQ = data.revenue.b2c[periodIndex - 1] + data.revenue.b2b[periodIndex - 1];
+                                prevQ = label === '% B2C' ? (data.revenue.b2c[periodIndex - 1] / totalQ * 100) : (data.revenue.b2b[periodIndex - 1] / totalQ * 100);
+                            }
+                            if (periodIndex >= 4) {
+                                const totalY = data.revenue.b2c[periodIndex - 4] + data.revenue.b2b[periodIndex - 4];
+                                prevY = label === '% B2C' ? (data.revenue.b2c[periodIndex - 4] / totalY * 100) : (data.revenue.b2b[periodIndex - 4] / totalY * 100);
+                            }
+                            
+                            const diffQ = prevQ ? (value - prevQ).toFixed(1) : '-';
+                            const diffY = prevY ? (value - prevY).toFixed(1) : '-';
+                            const colorQ = diffQ !== '-' && diffQ >= 0 ? '#34c759' : '#ff3b30';
+                            const colorY = diffY !== '-' && diffY >= 0 ? '#34c759' : '#ff3b30';
+                            
+                            rows += `<td style="padding: 0.65rem 0.75rem; text-align: right; font-weight: 600;">${value.toFixed(1)}%</td>`;
+                            rows += `<td style="padding: 0.65rem 0.75rem; text-align: right; font-size: 0.85rem;"><span style="color: ${colorQ}; font-weight: 600;">${diffQ !== '-' ? (diffQ >= 0 ? '+' : '') + diffQ + ' pp' : '-'}</span></td>`;
+                            rows += `<td style="padding: 0.65rem 0.75rem; text-align: right; font-size: 0.85rem;"><span style="color: ${colorY}; font-weight: 600;">${diffY !== '-' ? (diffY >= 0 ? '+' : '') + diffY + ' pp' : '-'}</span></td>`;
+                        });
+                        
+                        rows += `</tr>`;
+                    });
+                }
+                
+                return rows;
+            };
+            
+            html += addMetricRows('revenue');
+            html += addMetricRows('ebitda');
+            html += addMetricRows('margin');
+            html += addMetricRows('mix');
+            
+            html += `</tbody></table>`;
+            
+            container.innerHTML = html;
+        }
+
+        function generateEvolutionTable(operator, metric) {
+            const container = document.getElementById('dynamicTableContainer');
+            
+            // Determinar operadores a mostrar
+            const operators = operator === 'all' ? ['MEO', 'NOS', 'Vodafone'] : [operator];
+            
+            let html = `
+                <div style="margin-bottom: 1rem;">
+                    <h3 style="font-size: 1.1rem; font-weight: 600; color: #1d1d1f; margin: 0 0 0.5rem;">
+                        📈 Evolução Temporal - ${operator === 'all' ? 'Todos os Operadores' : operator}
+                    </h3>
+                    <p style="font-size: 0.85rem; color: #6e6e73; margin: 0;">
+                        Valores trimestrais + agregações anuais (FY) e acumuladas (9M)
+                    </p>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                    <thead>
+                        <tr style="background: #f5f5f7; border-bottom: 2px solid #d2d2d7;">
+                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; color: #1d1d1f; position: sticky; left: 0; background: #f5f5f7; z-index: 1;">Métrica</th>
+            `;
+            
+            operatorFinancials.periods.forEach(period => {
+                html += `<th style="padding: 0.75rem; text-align: right; font-weight: 600; color: #1d1d1f;">${period}</th>`;
+            });
+            
+            // Adicionar colunas de agregação
+            html += `<th style="padding: 0.75rem; text-align: right; font-weight: 700; color: #0071e3; border-left: 2px solid #d2d2d7;">FY'24</th>`;
+            html += `<th style="padding: 0.75rem; text-align: right; font-weight: 700; color: #34c759; border-left: 2px solid #d2d2d7;">FY'25 YTD</th>`;
+            html += `<th style="padding: 0.75rem; text-align: right; font-weight: 500; color: #6e6e73; font-size: 0.8rem;">Y/Y %</th>`;
+            html += `<th style="padding: 0.75rem; text-align: right; font-weight: 700; color: #ff9f0a; border-left: 2px solid #d2d2d7;">9M'24</th>`;
+            html += `<th style="padding: 0.75rem; text-align: right; font-weight: 700; color: #ff9f0a;">9M'25</th>`;
+            html += `<th style="padding: 0.75rem; text-align: right; font-weight: 500; color: #6e6e73; font-size: 0.8rem;">Y/Y %</th>`;
+            
+            html += `</tr></thead><tbody>`;
+            
+            operators.forEach(op => {
+                const color = op === 'MEO' ? '#0071e3' : op === 'NOS' ? '#1d1d1f' : '#e30613';
+                const data = operatorFinancials[op];
+                
+                html += `<tr style="background: ${color}15;"><td colspan="${1 + operatorFinancials.periods.length + 6}" style="padding: 0.5rem 0.75rem; font-weight: 700; color: ${color}; font-size: 1rem; position: sticky; left: 0; background: ${color}15; z-index: 1;">${op}</td></tr>`;
+                
+                // Função auxiliar para calcular agregações
+                const calcAggregations = (values, isPercentage = false) => {
+                    // FY'24 = soma Q1-Q4 2024 (índices 0-3)
+                    const fy24 = values.slice(0, 4).reduce((a, b) => a + b, 0);
+                    // FY'25 YTD = soma Q1-Q3 2025 (índices 4-6)
+                    const fy25ytd = values.slice(4, 7).reduce((a, b) => a + b, 0);
+                    // 9M'24 = soma Q1-Q3 2024 (índices 0-2)
+                    const m9_24 = values.slice(0, 3).reduce((a, b) => a + b, 0);
+                    // 9M'25 = soma Q1-Q3 2025 (índices 4-6)
+                    const m9_25 = values.slice(4, 7).reduce((a, b) => a + b, 0);
+                    
+                    // Para percentagens, calcular média em vez de soma
+                    if (isPercentage) {
+                        return {
+                            fy24: fy24 / 4,
+                            fy25ytd: fy25ytd / 3,
+                            m9_24: m9_24 / 3,
+                            m9_25: m9_25 / 3
+                        };
+                    }
+                    
+                    return { fy24, fy25ytd, m9_24, m9_25 };
+                };
+                
+                const calcYoY = (current, previous) => {
+                    if (!previous || previous === 0) return '-';
+                    const variation = ((current - previous) / previous * 100).toFixed(1);
+                    const color = variation >= 0 ? '#34c759' : '#ff3b30';
+                    const arrow = variation >= 0 ? '▲' : '▼';
+                    return `<span style="color: ${color}; font-weight: 600;">${arrow} ${Math.abs(variation)}%</span>`;
+                };
+                
+                if (metric === 'all' || metric === 'revenue') {
+                    ['Receita Total', 'Receita Telco', 'Receita B2C', 'Receita B2B'].forEach(label => {
+                        html += `<tr style="border-bottom: 1px solid #e8e8ed;"><td style="padding: 0.5rem 0.75rem; color: #1d1d1f; position: sticky; left: 0; background: #ffffff; font-weight: 500;">${label}</td>`;
+                        
+                        let values = [];
+                        if (label === 'Receita Total') values = data.revenue.total;
+                        else if (label === 'Receita Telco') values = data.revenue.telco;
+                        else if (label === 'Receita B2C') values = data.revenue.b2c;
+                        else if (label === 'Receita B2B') values = data.revenue.b2b;
+                        
+                        values.forEach(v => {
+                            html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 500;">€${v.toFixed(1)}M</td>`;
+                        });
+                        
+                        // Agregações
+                        const agg = calcAggregations(values);
+                        html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">€${agg.fy24.toFixed(1)}M</td>`;
+                        html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">€${agg.fy25ytd.toFixed(1)}M</td>`;
+                        html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-size: 0.8rem;">${calcYoY(agg.fy25ytd, agg.fy24)}</td>`;
+                        html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">€${agg.m9_24.toFixed(1)}M</td>`;
+                        html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600;">€${agg.m9_25.toFixed(1)}M</td>`;
+                        html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-size: 0.8rem;">${calcYoY(agg.m9_25, agg.m9_24)}</td>`;
+                        
+                        html += `</tr>`;
+                    });
+                }
+                
+                if (metric === 'all' || metric === 'ebitda') {
+                    html += `<tr style="border-bottom: 1px solid #e8e8ed;"><td style="padding: 0.5rem 0.75rem; color: #1d1d1f; position: sticky; left: 0; background: #ffffff; font-weight: 500;">EBITDA Total</td>`;
+                    data.ebitda.total.forEach(v => {
+                        html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 500;">€${v.toFixed(1)}M</td>`;
+                    });
+                    
+                    const agg = calcAggregations(data.ebitda.total);
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">€${agg.fy24.toFixed(1)}M</td>`;
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">€${agg.fy25ytd.toFixed(1)}M</td>`;
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-size: 0.8rem;">${calcYoY(agg.fy25ytd, agg.fy24)}</td>`;
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">€${agg.m9_24.toFixed(1)}M</td>`;
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600;">€${agg.m9_25.toFixed(1)}M</td>`;
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-size: 0.8rem;">${calcYoY(agg.m9_25, agg.m9_24)}</td>`;
+                    
+                    html += `</tr>`;
+                }
+                
+                if (metric === 'all' || metric === 'margin') {
+                    html += `<tr style="border-bottom: 1px solid #e8e8ed;"><td style="padding: 0.5rem 0.75rem; color: #1d1d1f; position: sticky; left: 0; background: #ffffff; font-weight: 500;">Margem EBITDA</td>`;
+                    data.ebitda.margin.forEach(v => {
+                        html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 500;">${v.toFixed(1)}%</td>`;
+                    });
+                    
+                    const agg = calcAggregations(data.ebitda.margin, true);
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">${agg.fy24.toFixed(1)}%</td>`;
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">${agg.fy25ytd.toFixed(1)}%</td>`;
+                    const diffFY = (agg.fy25ytd - agg.fy24).toFixed(1);
+                    const colorFY = diffFY >= 0 ? '#34c759' : '#ff3b30';
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-size: 0.8rem;"><span style="color: ${colorFY}; font-weight: 600;">${diffFY >= 0 ? '+' : ''}${diffFY} pp</span></td>`;
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">${agg.m9_24.toFixed(1)}%</td>`;
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600;">${agg.m9_25.toFixed(1)}%</td>`;
+                    const diff9M = (agg.m9_25 - agg.m9_24).toFixed(1);
+                    const color9M = diff9M >= 0 ? '#34c759' : '#ff3b30';
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-size: 0.8rem;"><span style="color: ${color9M}; font-weight: 600;">${diff9M >= 0 ? '+' : ''}${diff9M} pp</span></td>`;
+                    
+                    html += `</tr>`;
+                }
+                
+                if (metric === 'all' || metric === 'mix') {
+                    html += `<tr style="border-bottom: 1px solid #e8e8ed;"><td style="padding: 0.5rem 0.75rem; color: #1d1d1f; position: sticky; left: 0; background: #ffffff; font-weight: 500;">% B2C</td>`;
+                    const pctB2C = data.revenue.b2c.map((b2c, i) => {
+                        const total = b2c + data.revenue.b2b[i];
+                        return (b2c / total * 100);
+                    });
+                    pctB2C.forEach(v => {
+                        html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 500;">${v.toFixed(1)}%</td>`;
+                    });
+                    
+                    const agg = calcAggregations(pctB2C, true);
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">${agg.fy24.toFixed(1)}%</td>`;
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">${agg.fy25ytd.toFixed(1)}%</td>`;
+                    const diffFY_b2c = (agg.fy25ytd - agg.fy24).toFixed(1);
+                    const colorFY_b2c = diffFY_b2c >= 0 ? '#34c759' : '#ff3b30';
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-size: 0.8rem;"><span style="color: ${colorFY_b2c}; font-weight: 600;">${diffFY_b2c >= 0 ? '+' : ''}${diffFY_b2c} pp</span></td>`;
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">${agg.m9_24.toFixed(1)}%</td>`;
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600;">${agg.m9_25.toFixed(1)}%</td>`;
+                    const diff9M_b2c = (agg.m9_25 - agg.m9_24).toFixed(1);
+                    const color9M_b2c = diff9M_b2c >= 0 ? '#34c759' : '#ff3b30';
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-size: 0.8rem;"><span style="color: ${color9M_b2c}; font-weight: 600;">${diff9M_b2c >= 0 ? '+' : ''}${diff9M_b2c} pp</span></td>`;
+                    html += `</tr>`;
+                    
+                    html += `<tr style="border-bottom: 1px solid #e8e8ed;"><td style="padding: 0.5rem 0.75rem; color: #1d1d1f; position: sticky; left: 0; background: #ffffff; font-weight: 500;">% B2B</td>`;
+                    const pctB2B = data.revenue.b2b.map((b2b, i) => {
+                        const total = data.revenue.b2c[i] + b2b;
+                        return (b2b / total * 100);
+                    });
+                    pctB2B.forEach(v => {
+                        html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 500;">${v.toFixed(1)}%</td>`;
+                    });
+                    
+                    const aggB2B = calcAggregations(pctB2B, true);
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">${aggB2B.fy24.toFixed(1)}%</td>`;
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">${aggB2B.fy25ytd.toFixed(1)}%</td>`;
+                    const diffFY_b2b = (aggB2B.fy25ytd - aggB2B.fy24).toFixed(1);
+                    const colorFY_b2b = diffFY_b2b >= 0 ? '#34c759' : '#ff3b30';
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-size: 0.8rem;"><span style="color: ${colorFY_b2b}; font-weight: 600;">${diffFY_b2b >= 0 ? '+' : ''}${diffFY_b2b} pp</span></td>`;
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600; border-left: 2px solid #d2d2d7;">${aggB2B.m9_24.toFixed(1)}%</td>`;
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-weight: 600;">${aggB2B.m9_25.toFixed(1)}%</td>`;
+                    const diff9M_b2b = (aggB2B.m9_25 - aggB2B.m9_24).toFixed(1);
+                    const color9M_b2b = diff9M_b2b >= 0 ? '#34c759' : '#ff3b30';
+                    html += `<td style="padding: 0.5rem 0.75rem; text-align: right; font-size: 0.8rem;"><span style="color: ${color9M_b2b}; font-weight: 600;">${diff9M_b2b >= 0 ? '+' : ''}${diff9M_b2b} pp</span></td>`;
+                    html += `</tr>`;
+                }
+            });
+            
+            html += `</tbody></table>`;
+            
+            container.innerHTML = html;
+        }
+
+        function exportTableToExcel() {
+            // Simples exportação - em produção usaria biblioteca como SheetJS
+            alert('Funcionalidade de exportação Excel será implementada com biblioteca SheetJS');
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // FIM FINANCEIRO
+        // ═══════════════════════════════════════════════════════════════════
+
         // ===== INICIALIZAÇÃO =====
         document.addEventListener('DOMContentLoaded', () => {
             initCharts3T25();
             updateComparisonCards();
+            initFinancialCharts();
         });
     </script>
 </body>
