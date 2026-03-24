@@ -47,6 +47,21 @@
             padding: 3rem 2rem;
             text-align: center;
             margin-bottom: 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: padding 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .header.scrolled {
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
         }
 
         .header h1 {
@@ -60,6 +75,133 @@
             color: #6e6e73;
             font-size: 0.9rem;
             letter-spacing: 0.3px;
+        }
+
+        /* Language Toggle */
+        .lang-toggle {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f5f5f7;
+            border: 1px solid #d2d2d7;
+            border-radius: 980px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
+        .lang-toggle:hover {
+            background: #e8e8ed;
+            border-color: #b0b0b8;
+        }
+
+        .lang-toggle:active {
+            transform: translateY(-50%) scale(0.96);
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            z-index: 101;
+        }
+
+        .mobile-menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: #1d1d1f;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .mobile-menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+
+        .mobile-menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 98;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-nav-overlay.active {
+            opacity: 1;
+        }
+
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: #ffffff;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 99;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+            padding: 5rem 1.5rem 2rem;
+        }
+
+        .mobile-nav.active {
+            left: 0;
+        }
+
+        .mobile-nav-item {
+            display: block;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: #f5f5f7;
+            border: none;
+            border-radius: 12px;
+            color: #1d1d1f;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            width: 100%;
+        }
+
+        .mobile-nav-item:hover {
+            background: #e8e8ed;
+        }
+
+        .mobile-nav-item.active {
+            background: #0071e3;
+            color: #ffffff;
         }
 
         /* Container */
@@ -518,13 +660,46 @@
             }
         }
 
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .mobile-nav-overlay,
+            .mobile-nav {
+                display: block;
+            }
+
+            .main-tabs {
+                display: none;
+            }
+
+            .lang-toggle {
+                position: static;
+                transform: none;
+                margin: 1rem auto 0;
+            }
+
+            .header-content {
+                padding: 0 3rem;
+            }
+        }
+
         @media (max-width: 640px) {
             .header h1 {
                 font-size: 1.3rem;
             }
 
             .header {
-                padding: 1.5rem;
+                padding: 1.5rem 1rem;
+            }
+
+            .header.scrolled {
+                padding: 1rem;
+            }
+
+            .header-content {
+                padding: 0 2.5rem;
             }
 
             .kpi-grid {
@@ -550,6 +725,11 @@
             .chart-legend {
                 flex-direction: column;
                 gap: 1rem;
+            }
+
+            .lang-toggle {
+                font-size: 0.75rem;
+                padding: 0.4rem 0.8rem;
             }
         }
 
@@ -606,10 +786,36 @@
 </head>
 <body>
     <!-- Header -->
-    <div class="header">
-        <h1>📡 Mercado de Telecomunicações — Portugal</h1>
-        <p>Fonte: ANACOM | Factos & Números 3T 2025 + Anexo Estatístico 2024</p>
+    <div class="header" id="mainHeader">
+        <div class="header-content">
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleMobileNav()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <h1 data-i18n="header.title">📡 Mercado de Telecomunicações — Portugal</h1>
+            <p data-i18n="header.subtitle">Fonte: ANACOM | Factos & Números 3T 2025 + Anexo Estatístico 2024</p>
+
+            <!-- Language Toggle -->
+            <button class="lang-toggle" id="langToggle" onclick="toggleLanguage()">
+                <span id="langFlag">🇵🇹</span>
+                <span id="langText">PT</span>
+            </button>
+        </div>
     </div>
+
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay" onclick="closeMobileNav()"></div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav" id="mobileNav">
+        <button class="mobile-nav-item active" onclick="switchMainTabMobile('tab-3t25')" data-i18n="tabs.main.q3_2025">📊 3T 2025</button>
+        <button class="mobile-nav-item" onclick="switchMainTabMobile('tab-compare')" data-i18n="tabs.main.compare">🔍 Comparar</button>
+        <button class="mobile-nav-item" onclick="switchMainTabMobile('tab-historical')" data-i18n="tabs.main.historical">📈 Histórico</button>
+        <button class="mobile-nav-item" onclick="switchMainTabMobile('tab-financial')" data-i18n="tabs.main.financial">💰 Financeiro</button>
+    </nav>
 
     <!-- Main Container -->
     <div class="container">
@@ -2160,6 +2366,104 @@
     </div>
 
     <script src="financial-data.js"></script>
+    <script src="i18n.js"></script>
+    <script>
+        // ============================================
+        // MOBILE & i18n FUNCTIONS
+        // ============================================
+
+        // Sticky Header on Scroll
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('mainHeader');
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+            
+            lastScrollTop = scrollTop;
+        });
+
+        // Toggle Mobile Navigation
+        function toggleMobileNav() {
+            const mobileNav = document.getElementById('mobileNav');
+            const overlay = document.getElementById('mobileNavOverlay');
+            const toggle = document.getElementById('mobileMenuToggle');
+            
+            mobileNav.classList.toggle('active');
+            overlay.classList.toggle('active');
+            toggle.classList.toggle('active');
+        }
+
+        // Close Mobile Navigation
+        function closeMobileNav() {
+            const mobileNav = document.getElementById('mobileNav');
+            const overlay = document.getElementById('mobileNavOverlay');
+            const toggle = document.getElementById('mobileMenuToggle');
+            
+            mobileNav.classList.remove('active');
+            overlay.classList.remove('active');
+            toggle.classList.remove('active');
+        }
+
+        // Switch Main Tab from Mobile Menu
+        function switchMainTabMobile(tabId) {
+            switchMainTab(tabId);
+            closeMobileNav();
+            
+            // Update mobile nav active state
+            const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+            mobileNavItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Toggle Language
+        function toggleLanguage() {
+            const currentLang = localStorage.getItem('language') || 'pt';
+            const newLang = currentLang === 'pt' ? 'en' : 'pt';
+            
+            // Switch language using i18n system
+            if (typeof switchLanguage === 'function') {
+                switchLanguage(newLang);
+            }
+            
+            // Update toggle button
+            updateLanguageToggle(newLang);
+        }
+
+        // Update Language Toggle Button
+        function updateLanguageToggle(lang) {
+            const flag = document.getElementById('langFlag');
+            const text = document.getElementById('langText');
+            
+            if (lang === 'pt') {
+                flag.textContent = '🇵🇹';
+                text.textContent = 'PT';
+            } else {
+                flag.textContent = '🇬🇧';
+                text.textContent = 'EN';
+            }
+        }
+
+        // Initialize language toggle on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentLang = localStorage.getItem('language') || 'pt';
+            updateLanguageToggle(currentLang);
+            
+            // Apply translations if i18n is loaded
+            if (typeof applyTranslations === 'function') {
+                applyTranslations();
+            }
+        });
+
+        // ============================================
+        // EXISTING DASHBOARD FUNCTIONS
+        // ============================================
     <script>
         // ===== EXPORTAÇÃO EXCEL =====
         function exportToExcel(filename, labels, datasets) {
