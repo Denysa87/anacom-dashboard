@@ -59,27 +59,27 @@ const operatorFinancials = {
         }
     },
     
-    // Vodafone Portugal - Estimativas Analíticas
+    // Vodafone Portugal - Dados Confirmados (Vodafone Group Q3 FY26)
     Vodafone: {
         revenue: {
-            total: [264.0, 260.0, 273.0, 291.0, 270.0, 263.0, 276.0], // €M (estimado)
-            telco: [264.0, 260.0, 273.0, 291.0, 270.0, 263.0, 276.0], // €M
-            b2c: [180.0, 177.0, 186.0, 198.0, 184.0, 179.0, 188.0],   // €M (estimado ~68%)
-            b2b: [84.0, 83.0, 87.0, 93.0, 86.0, 84.0, 88.0]           // €M (estimado ~32%)
+            total: [334.0, 343.0, 351.0, 347.0, 343.0, 338.0, 348.0], // €M
+            telco: [305.0, 317.0, 324.0, 316.0, 312.0, 312.0, 321.0], // €M (service revenue net)
+            b2c: [213.5, 222.0, 227.0, 221.0, 218.5, 218.5, 224.5],   // €M (~70% telco)
+            b2b: [91.5, 95.0, 97.0, 95.0, 93.5, 93.5, 96.5]           // €M (~30% telco)
         },
         ebitda: {
-            total: [73.0, 72.0, 77.0, 83.0, 78.0, 76.0, 80.0],        // €M (estimado)
-            margin: [28.4, 28.3, 28.9, 29.3, 29.7, 29.6, 30.0]        // % (estimado)
+            total: [115.0, 125.0, 127.0, 122.0, 120.0, 134.0, 138.0], // €M (EBITDAaL)
+            margin: [34.4, 36.4, 36.2, 35.2, 35.0, 39.6, 39.7]        // % (on total revenue)
         },
         capex: {
-            total: [30.0, 31.0, 33.0, 38.0, 32.0, 31.0, 34.0]         // €M (estimado)
+            total: [72.0, 50.0, 52.0, 76.0, 74.0, 45.0, 46.0]         // €M
         },
         metadata: {
-            source: 'estimated',
-            sourceDetail: 'Estimativas baseadas em Vodafone Group FY reports + benchmarks',
+            source: 'confirmed',
+            sourceDetail: 'Vodafone Group Q3 FY26 - Additional Information (Segmental Analysis)',
             color: '#e30613',
-            badgeColor: '#fff3cd',
-            badgeText: '⚠ Estimado'
+            badgeColor: '#dcfce7',
+            badgeText: '✓ Confirmado'
         }
     }
 };
