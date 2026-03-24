@@ -196,39 +196,39 @@ const strategicInsights = {
             detail: 'B2B robusto (+9.4% YoY em H1)'
         },
         Vodafone: {
-            trend: 'stable',
-            yoyQ3: 1.1,
-            alert: 'Crescimento moderado',
-            detail: 'Convergência fixo-móvel acelerada'
+            trend: 'declining',
+            yoyQ3: -0.9,
+            alert: 'Declínio ligeiro mas margem em forte expansão',
+            detail: 'Service revenue -0.7% CY\'25, mas EBITDAaL +7.2% YoY'
         }
     },
     profitability: {
         ranking: [
             { operator: 'NOS', margin: 48.7, trend: 'improving' },
-            { operator: 'MEO', margin: 33.9, trend: 'declining' },
-            { operator: 'Vodafone', margin: 30.0, trend: 'stable' }
+            { operator: 'Vodafone', margin: 39.7, trend: 'improving' },
+            { operator: 'MEO', margin: 33.9, trend: 'declining' }
         ],
         alerts: [
             'MEO: Compressão de margem -330bps (Q1\'24 → Q3\'25)',
             'NOS: Melhoria de +250bps (líder europeu)',
-            'Vodafone: Margem estável, crescimento cobre CAPEX 5G'
+            'Vodafone: Forte expansão +530bps (34.4% → 39.7%), eficiência operacional'
         ]
     },
     segmentation: {
         b2cQuotas: {
-            MEO: 40.0,
-            NOS: 31.0,
-            Vodafone: 20.0
+            MEO: 40.6,
+            NOS: 31.3,
+            Vodafone: 24.6
         },
         b2bQuotas: {
-            MEO: 52.0,
-            NOS: 19.0,
-            Vodafone: 15.0
+            MEO: 51.0,
+            NOS: 18.0,
+            Vodafone: 15.8
         },
         alerts: [
             'MEO: Maior exposição B2B (46% do mix) = risco concentração',
             'NOS: Mix equilibrado (72% B2C / 28% B2B)',
-            'Vodafone: Foco PME (68% B2C / 32% B2B)'
+            'Vodafone: Foco B2C (70% B2C / 30% B2B) - dados confirmados'
         ]
     }
 };
