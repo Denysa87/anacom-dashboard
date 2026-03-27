@@ -168,10 +168,12 @@
             z-index: 98;
             opacity: 0;
             transition: opacity 0.3s ease;
+            pointer-events: none;
         }
 
         .mobile-nav-overlay.active {
             opacity: 1;
+            pointer-events: auto;
         }
 
         .mobile-nav {
@@ -187,6 +189,7 @@
             transition: left 0.3s ease;
             overflow-y: auto;
             padding: 2rem 1.5rem 2rem;
+            pointer-events: auto;
         }
 
         .mobile-nav.active {
@@ -207,9 +210,12 @@
             transition: all 0.2s ease;
             text-align: left;
             width: 100%;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
-        .mobile-nav-item:hover {
+        .mobile-nav-item:hover,
+        .mobile-nav-item:active {
             background: #e8e8ed;
         }
 
