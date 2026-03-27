@@ -566,15 +566,87 @@ function updatePageTranslations() {
         if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
             element.placeholder = translation;
         } else {
-            element.textContent = translation;
+            // Preserve emojis and icons
+            const emoji = element.textContent.match(/^[\u{1F300}-\u{1F9FF}][\s]*/u);
+            if (emoji) {
+                element.textContent = emoji[0] + translation;
+            } else {
+                element.textContent = translation;
+            }
         }
     });
     
     // Update document title
     document.title = `📡 ${t('header.title')}`;
     
+    // Translate dynamic content without data-i18n
+    translateDynamicContent();
+    
     // Update language toggle button
     updateLanguageToggle();
+}
+
+/**
+ * Translate dynamic content that doesn't have data-i18n attributes
+ */
+function translateDynamicContent() {
+    const lang = currentLang;
+    
+    // Service names mapping
+    const services = {
+        'Voz Móvel': lang === 'pt' ? 'Voz Móvel' : 'Mobile Voice',
+        'BL Móvel': lang === 'pt' ? 'BL Móvel' : 'Mobile BB',
+        'Voz Fixa': lang === 'pt' ? 'Voz Fixa' : 'Fixed Voice',
+        'BL Fixa': lang === 'pt' ? 'BL Fixa' : 'Fixed BB',
+        'TV Subscrição': lang === 'pt' ? 'TV Subscrição' : 'TV Subscription',
+        'Multiple Play': 'Multiple Play',
+        'Triple Play (3P)': 'Triple Play (3P)',
+        '4/5 Play': '4/5 Play'
+    };
+    
+    // Update chart headers with service names
+    document.querySelectorAll('h4').forEach(h4 => {
+        Object.keys(services).forEach(ptName => {
+            if (h4.textContent.includes(ptName)) {
+                h4.textContent = h4.textContent.replace(ptName, services[ptName]);
+            }
+        });
+    });
+    
+    // Update "Receita Estimada" in scorecards
+    document.querySelectorAll('div[style*="text-transform: uppercase"]').forEach(el => {
+        if (el.textContent.includes('Receita Estimada')) {
+            el.textContent = lang === 'pt' ? 'Receita Estimada 3T25' : 'Estimated Revenue Q3\'25';
+        }
+    });
+    
+    // Update "quota mercado" / "market share"
+    document.querySelectorAll('div').forEach(el => {
+        if (el.textContent.match(/[\d.]+%\s+quota mercado/)) {
+            const match = el.textContent.match(/([\d.]+%)\s+quota mercado/);
+            if (match) {
+                el.textContent = lang === 'pt' ? `${match[1]} quota mercado` : `${match[1]} market share`;
+            }
+        }
+    });
+    
+    // Update operator badges
+    document.querySelectorAll('div[style*="border-radius: 6px"]').forEach(badge => {
+        if (badge.textContent === 'Líder') badge.textContent = lang === 'pt' ? 'Líder' : 'Leader';
+        if (badge.textContent === 'NOVO') badge.textContent = lang === 'pt' ? 'NOVO' : 'NEW';
+        if (badge.textContent === '#2') badge.textContent = '#2';
+        if (badge.textContent === '#3') badge.textContent = '#3';
+    });
+    
+    // Update "Fonte: ANACOM"
+    document.querySelectorAll('p').forEach(p => {
+        if (p.textContent.includes('Fonte: ANACOM')) {
+            p.textContent = p.textContent.replace('Fonte: ANACOM', lang === 'pt' ? 'Fonte: ANACOM' : 'Source: ANACOM');
+        }
+        if (p.textContent.includes('pp = pontos percentuais')) {
+            p.textContent = p.textContent.replace('pp = pontos percentuais', lang === 'pt' ? 'pp = pontos percentuais' : 'pp = percentage points');
+        }
+    });
 }
 
 /**
